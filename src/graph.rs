@@ -287,16 +287,6 @@ impl<'a, T: Display + Clone + Eq + Hash> Graph<T> {
         false
     }    
 
-    /// Resets the distance of each node in the graph back to `i32::MAX` and resets the shortest path string.
-    /// 
-    /// Is called each time before a pathfinding algorithm is run.
-    fn reset_nodes(&mut self) {
-        for (_, node) in self.nodes.iter_mut() {
-            node.borrow_mut().distance = i32::MAX;
-            node.borrow_mut().shortest_path = Vec::new();
-        }
-    }
-
     /// Returns a string illustrating the shortest path to the target node.
     /// 
     /// Requires that a pathfinding algorithm has run to fill the shortest paths.

@@ -1,7 +1,9 @@
 use std::{fmt::Display, rc::Rc, cell::RefCell, collections::{HashSet, HashMap}};
 
-/// Contains implementations for the graph to work
+/// Contains implementations for the graph to work.
 mod graph;
+/// Contains all algorithms that are implemented in this crate.
+pub mod algorithms;
 
 /// A node inside the graph
 #[derive(Debug, Clone, Eq)]
@@ -40,6 +42,19 @@ pub struct Graph<T: Display> {
     nodes: HashMap<T, Rc<RefCell<Node<T>>>>,
 }
 
+impl<T: Display> Graph<T> {
+
+    /// Resets the distance of each node in the graph back to `i32::MAX` and resets the shortest path string.
+    /// 
+    /// Is called each time before a pathfinding algorithm is run.
+    fn reset_nodes(&mut self) {
+        for (_, node) in self.nodes.iter_mut() {
+            node.borrow_mut().distance = i32::MAX;
+            node.borrow_mut().shortest_path = Vec::new();
+        }
+    }
+}
+
 #[derive(Debug, PartialEq, Eq)]
 /// Errors that can occur when edges are added to a graph.
 pub enum AddEdgeError {
@@ -49,4 +64,14 @@ pub enum AddEdgeError {
     TargetMissing,
     /// Indicates that either node is missing from the graph.
     EitherMissing,
+}
+
+impl ToString for AddEdgeError {
+    fn to_string(&self) -> String {
+        match self {
+            AddEdgeError::SourceMissing => String::from("SourceMissing"),
+            AddEdgeError::TargetMissing => String::from("TargetMissing"),
+            AddEdgeError::EitherMissing => String::from("EitherMissing"),
+        }
+    }
 }
