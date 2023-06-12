@@ -396,6 +396,78 @@ impl<T: Display> Display for Graph<T> {
     }
 }
 
+impl<T: Display + Clone + Eq + Hash + From<String>> From<&Vec<Vec<i32>>> for Graph<T> {
+
+    /// Create a graph from a 2D vector containing i32.
+    /// 
+    /// The i32 value is the edge weight of each edge leading into that node.
+    /// # Example
+    /// ```
+    /// use simple_graph_algorithms::Graph;
+    /// 
+    /// // Prepare example vector
+    /// let mut vec: Vec<Vec<i32>> = Vec::new();
+    /// let vec_inner_1 = vec![3, 4, 5];
+    /// let vec_inner_2 = vec![1, 2, 3];
+    /// let vec_inner_3 = vec![1, 8, 2];
+    /// vec.push(vec_inner_1);
+    /// vec.push(vec_inner_2);
+    /// vec.push(vec_inner_3);
+    /// 
+    /// // Create graph from example vector
+    /// let mut graph = Graph::<String>::from(&vec);
+    /// 
+    /// // Run dijkstra's algorithm
+    /// //assert_eq!(8, dijkstra(&mut graph, &String::from("[0|0]"), &String::from("[2|2]")).unwrap_or(-1));
+    /// ```
+    fn from(value: &Vec<Vec<i32>>) -> Self {
+        let mut graph: Graph<T> = Graph::new();
+        for (i_y, y) in value.iter().enumerate() {
+            for (i_x, _x) in y.iter().enumerate() {
+graph.add_node(String::from(format!("[{}|{}]", i_x, i_y)).into());
+            }
+        }
+        for (i_y, y) in value.iter().enumerate() {
+            let max_x_size = y.len();
+            for (i_x, x) in y.iter().enumerate() {
+                for neighbor in neighbor_positions((i_x, i_y), max_x_size, value.len()) {
+                    graph.add_edge(*x, &format!("[{}|{}]", neighbor.0, neighbor.1).into(), &format!("[{}|{}]", i_x, i_y).into()).unwrap();
+                }
+            }
+        }
+        graph
+    }
+}
+
+
+
+/// Returns the neighboring positions for a position in a 2D graph.
+/// 
+/// # Example
+/// ```ignore
+/// let neighbors = neighbor_positions((2,2), 10, 10);
+/// assert_eq!((1, 2), neighbors[0]);
+/// assert_eq!((2, 1), neighbors[1]);
+/// assert_eq!((3, 2), neighbors[2]);
+/// assert_eq!((2, 3), neighbors[3]);
+/// ```
+fn neighbor_positions(pos: (usize, usize), max_x_size: usize, max_y_size: usize) -> Vec<(usize, usize)> {
+    let mut positions = Vec::new();
+    if pos.0 != 0 {
+        positions.push((pos.0-1, pos.1));
+    }
+    if pos.1 != 0 {
+        positions.push((pos.0, pos.1-1));
+    }
+    if pos.0 != max_x_size-1 {
+        positions.push((pos.0+1, pos.1));
+    }
+    if pos.1 != max_y_size-1 {
+        positions.push((pos.0, pos.1+1));
+    }
+    positions
+}
+
 #[cfg(test)]
 mod tests {
     use crate::Graph;
@@ -448,6 +520,24 @@ mod tests {
         assert_eq!(graph.add_double_edge(1, &"c", &"b"), Err(crate::AddEdgeError::SourceMissing));
         assert_eq!(graph.add_double_edge(1, &"b", &"d"), Err(crate::AddEdgeError::TargetMissing));
         assert_eq!(graph.add_double_edge(1, &"c", &"d"), Err(crate::AddEdgeError::EitherMissing));
+    }
+
+    #[test]
+    fn test_graph_from_vec_vec_i32() {
+        let mut vec: Vec<Vec<i32>> = Vec::new();
+        let vec_inner_1 = vec![3, 4, 5];
+        let vec_inner_2 = vec![1, 2, 3];
+        let vec_inner_3 = vec![1, 8, 2];
+        vec.push(vec_inner_1);
+        vec.push(vec_inner_2);
+        vec.push(vec_inner_3);
+     
+        let mut graph = Graph::<String>::from(&vec);
+        assert_eq!(graph.size(), 9);
+        assert_eq!(graph.contains_node(&String::from("[0|0]")), true);
+        assert_eq!(graph.contains_node(&String::from("[3|3]")), false);
+        assert_eq!(graph.contains_edge(&String::from("[1|1]"), &String::from("[0|1]")), true);
+        assert_eq!(graph.contains_edge(&String::from("[1|1]"), &String::from("[0|0]")), false);
     }
 
     fn simple_graph() -> Graph<&'static str> {
