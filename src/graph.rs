@@ -21,33 +21,6 @@ impl<T: Display + Eq + Clone> Node<T> {
     /// Returns the shortest path to this node.
     /// 
     /// For a node to receive its shortest path a path finding algorithm has to have run beforehand.
-    /// 
-    /// See //TODO move example to function in graph that exposes this functionality to the user
-    /// 
-//    /// # Example
-//    /// ```
-//    /// use simple_graph_algorithms::{Graph, Node}, algorithms::dijkstra};
-//    /// 
-//    /// // Prepare graph
-//    /// let mut graph: Graph<char> = Graph::new();
-//    /// let node_a_idx = graph.add_node(Node::new('a'));
-//    /// let node_b_idx = graph.add_node(Node::new('b'));
-//    /// let node_c_idx = graph.add_node(Node::new('c'));
-//    /// let node_d_idx = graph.add_node(Node::new('d'));
-//    /// graph.add_edge(3, node_a_idx, node_b_idx);
-//    /// graph.add_edge(4, node_a_idx, node_c_idx);
-//    /// graph.add_edge(3, node_b_idx, node_a_idx);
-//    /// graph.add_edge(2, node_b_idx, node_d_idx);
-//    /// graph.add_edge(9, node_c_idx, node_a_idx);
-//    /// graph.add_edge(1, node_c_idx, node_d_idx);
-//    /// graph.add_edge(3, node_d_idx, node_b_idx);
-//    /// graph.add_edge(7, node_d_idx, node_c_idx);
-//    /// dijkstra(&mut graph, &'a', &'d').unwrap_or(-1);
-//    /// 
-//    /// // Get shortest path
-//    /// let string = graph.node_by_id(&'d').unwrap().borrow_mut().shortest_path();
-//    /// assert_eq!("a -> b -> d", string)
-//    /// ```
     fn shortest_path(&self) -> String {
         let mut path: Vec<T> = Vec::new();
         for previous in &self.shortest_path {
@@ -322,6 +295,42 @@ impl<'a, T: Display + Clone + Eq + Hash> Graph<T> {
             node.borrow_mut().distance = i32::MAX;
             node.borrow_mut().shortest_path = Vec::new();
         }
+    }
+
+    /// Returns a string illustrating the shortest path to the target node.
+    /// 
+    /// Requires that a pathfinding algorithm has run to fill the shortest paths.
+    /// 
+    /// If the `target_node_id` is not contained within the graph, `None` is returned instead of the path.
+    /// //TODO add in example, once pathfinding algorithm has been implemented
+    /// 
+//    /// # Example
+//    /// ```
+//    /// use simple_graph_algorithms::{Graph, Node}, algorithms::dijkstra};
+//    /// 
+//    /// // Prepare graph
+//    /// let mut graph: Graph<char> = Graph::new();
+//    /// let node_a_idx = graph.add_node(Node::new('a'));
+//    /// let node_b_idx = graph.add_node(Node::new('b'));
+//    /// let node_c_idx = graph.add_node(Node::new('c'));
+//    /// let node_d_idx = graph.add_node(Node::new('d'));
+//    /// graph.add_edge(3, node_a_idx, node_b_idx);
+//    /// graph.add_edge(4, node_a_idx, node_c_idx);
+//    /// graph.add_edge(3, node_b_idx, node_a_idx);
+//    /// graph.add_edge(2, node_b_idx, node_d_idx);
+//    /// graph.add_edge(9, node_c_idx, node_a_idx);
+//    /// graph.add_edge(1, node_c_idx, node_d_idx);
+//    /// graph.add_edge(3, node_d_idx, node_b_idx);
+//    /// graph.add_edge(7, node_d_idx, node_c_idx);
+//    /// dijkstra(&mut graph, &'a', &'d').unwrap_or(-1);
+//    /// 
+//    /// // Get shortest path
+//    /// let string = graph.node_by_id(&'d').unwrap().borrow_mut().shortest_path();
+//    /// assert_eq!("a -> b -> d", string)
+//    /// ```
+    pub fn node_shortest_path(&self, target_node_id: T) -> Option<String> {
+        let node = self.nodes.get(&target_node_id).unwrap();
+        Some(node.borrow().shortest_path())
     }
 
     /// Returns the size of this graph, determined by the amount of nodes contained.
