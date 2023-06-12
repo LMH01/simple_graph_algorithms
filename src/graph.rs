@@ -150,6 +150,38 @@ impl<'a, T: Display + Clone + Eq + Hash> Graph<T> {
         }
     }
 
+    /// Adds new nodes to the graph.
+    /// 
+    /// For each entry in the `ids` vector a new node is added, the entry being the unique identifier of the new node.
+    /// 
+    /// Return value indicates how many nodes where not added because a node with the id already exists.
+    /// 
+    /// # Example
+    /// ```
+    /// use simple_graph_algorithms::Graph;
+    /// 
+    /// let mut graph = Graph::new();
+    /// let ids = vec!["a", "b", "c"];
+    /// 
+    /// assert_eq!(graph.add_nodes(ids.clone()), 0);
+    /// 
+    /// assert_eq!(graph.contains_node(&"a"), true);
+    /// assert_eq!(graph.contains_node(&"b"), true);
+    /// assert_eq!(graph.contains_node(&"c"), true);
+    /// 
+    /// // Add nodes again, returns 3 because all nodes already exist in the graph.
+    /// assert_eq!(graph.add_nodes(ids), 3);
+    /// ```
+    pub fn add_nodes(&mut self, ids: Vec<T>) -> i32 {
+        let mut duplicates = 0;
+        for id in ids {
+            if !self.add_node(id) {
+                duplicates += 1;
+            }
+        }
+        duplicates
+    }
+
     /// Checks if node with `id` is contained inside this graph.
     /// 
     /// # Example
@@ -360,10 +392,21 @@ mod tests {
     use crate::Graph;
 
     #[test]
-    fn test_nodes() {
+    fn test_node() {
         let graph = simple_graph();
         assert!(graph.contains_node(&"a"));
         assert!(graph.contains_node(&"b"));
+    }
+
+    #[test]
+    fn test_add_nodes() {
+        let mut graph = Graph::new();
+        let vec = vec!["a", "b", "c"];
+        assert_eq!(graph.add_nodes(vec.clone()), 0);
+        assert_eq!(graph.add_nodes(vec), 3);
+
+        let vec = vec!["c", "d", "e"];
+        assert_eq!(graph.add_nodes(vec), 1);
     }
 
     #[test]
