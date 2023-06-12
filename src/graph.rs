@@ -371,6 +371,93 @@ impl<'a, T: Display + Clone + Eq + Hash> Graph<T> {
         self.nodes.clear();
     }
 
+    /// Constructs a graph from a list of instructions. This is meant to be used by reading the instructions form a file.
+    /// 
+    /// The order in which the instructions are stored in the vector does not matter.
+    /// 
+    /// # Instructions
+    /// 
+    /// ## Nodes
+    /// 
+    /// ```txt
+    /// node: LABEL1
+    /// ```
+    /// This declares a new node labeled `LABEL1`
+    /// 
+    /// ## Edge
+    /// 
+    /// ```txt
+    /// edge: LABEL1 WEIGHT LABEL2
+    /// ```
+    /// This adds an edge from `LABEL1` to `LABEL2` with `WEIGHT`
+    /// 
+    /// ```txt
+    /// double_edge: LABEL1 WEIGHT LABEL2
+    /// ```
+    /// This adds a double edge between `LABEL1` and `LABEL2` with `WEIGHT`
+    /// 
+    /// # Example
+    /// 
+    /// ```rust
+    /// //use lmh01_pathfinding::algorithms::dijkstra;//TODO add dijkstra implementation
+    /// use simple_graph_algorithms::Graph;
+    /// 
+    /// // This lines vector should ideally constructed by parsing a file, below insertions are just for demonstration.
+    /// let mut lines = Vec::new();
+    /// lines.push(String::from("node: a"));
+    /// lines.push(String::from("node: b"));
+    /// lines.push(String::from("node: c"));
+    /// lines.push(String::from("node: d"));
+    /// lines.push(String::from("edge: a 7 b"));
+    /// lines.push(String::from("edge: a 4 c"));
+    /// lines.push(String::from("edge: b 2 d"));
+    /// lines.push(String::from("edge: c 9 d"));
+    /// lines.push(String::from("edge: c 2 b"));
+    /// lines.push(String::from("double_edge: a 1 d"));
+    /// let mut graph = Graph::<String>::from_instructions(&lines);
+    /// //assert_eq!(1, dijkstra(&mut graph, &String::from("a"), &String::from("d")).unwrap_or(-1));
+    /// ```
+    pub fn from_instructions(instructions: &Vec<String>) -> Graph<String> {
+        // Stores all node labels of nodes that should be added to the graph
+        let mut node_labels = Vec::new();
+        // Stores all edges that should be added to the graph, (WEIGHT, LABEL1, LABEL2, double)
+        let mut edges: Vec<(i32, String, String, bool)> = Vec::new();
+
+        // Parse lines
+        for line in instructions {
+            let split: Vec<&str> = line.split(' ').collect();
+            match split[0].to_lowercase().as_str() {
+                "node:" => {
+                    node_labels.push(String::from(split[1]));
+                },
+                "edge:" => {
+                    edges.push((split[2].parse::<i32>().expect("Unable to parse edge weight!"), String::from(split[1]), String::from(split[3]), false));
+                },
+                "double_edge:" => {
+                    edges.push((split[2].parse::<i32>().expect("Unable to parse edge weight!"), String::from(split[1]), String::from(split[3]), true));
+                },
+                _ => (),
+            }
+        }
+
+        let mut graph = Graph::new();
+
+        // Add nodes to graph
+        for label in node_labels {
+            graph.add_node(label.clone());
+        }
+        // Add edges to graph
+        for edge in edges {
+            if edge.3 {
+                graph.add_double_edge(edge.0, &edge.1, &edge.2).unwrap();
+            } else {
+                graph.add_edge(edge.0, &edge.1, &edge.2).unwrap();
+            }
+        }
+
+        graph
+    }
+
 }
 
 impl<T: Display> Display for Graph<T> {
@@ -538,6 +625,25 @@ mod tests {
         assert_eq!(graph.contains_node(&String::from("[3|3]")), false);
         assert_eq!(graph.contains_edge(&String::from("[1|1]"), &String::from("[0|1]")), true);
         assert_eq!(graph.contains_edge(&String::from("[1|1]"), &String::from("[0|0]")), false);
+    }
+
+    #[test]
+    fn graph_from_instructions() {
+        let mut lines = Vec::new();
+        lines.push(String::from("node: a"));
+        lines.push(String::from("node: b"));
+        lines.push(String::from("node: c"));
+        lines.push(String::from("node: d"));
+        lines.push(String::from("edge: a 7 b"));
+        lines.push(String::from("edge: a 4 c"));
+        lines.push(String::from("edge: b 2 d"));
+        lines.push(String::from("edge: c 9 d"));
+        lines.push(String::from("edge: c 2 b"));
+        let mut graph = Graph::<String>::from_instructions(&lines);
+        assert_eq!(graph.size(), 4);
+        assert_eq!(graph.contains_edge(&String::from("a"), &String::from("c")), true);
+        //TODO add dijkstra implementation
+        //assert_eq!(8, dijkstra(&mut graph, &String::from("a"), &String::from("d")).unwrap_or(-1));
     }
 
     fn simple_graph() -> Graph<&'static str> {
