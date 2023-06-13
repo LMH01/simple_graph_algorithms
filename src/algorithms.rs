@@ -23,7 +23,7 @@ use crate::{Graph, Node};
 /// 
 /// # Examples
 /// ```rust
-/// use simple_graph_algorithms::{Graph, AddEdgeError, algorithms::dijkstra};
+/// use simple_graph_algorithms::{Graph, algorithms::dijkstra};
 /// 
 /// // Create new graph
 /// let mut graph: Graph<char> = Graph::new();
@@ -36,24 +36,22 @@ use crate::{Graph, Node};
 /// graph.add_node('e');
 /// 
 /// // Add edges between nodes
-/// graph.add_edge(3, &'a', &'b')?;
-/// graph.add_edge(4, &'a', &'c')?;
-/// graph.add_edge(5, &'b', &'a')?;
-/// graph.add_edge(2, &'b', &'d')?;
-/// graph.add_edge(9, &'c', &'a')?;
-/// graph.add_edge(1, &'c', &'d')?;
-/// graph.add_edge(3, &'d', &'b')?;
-/// graph.add_edge(7, &'d', &'c')?;
+/// graph.add_edge(3, &'a', &'b');
+/// graph.add_edge(4, &'a', &'c');
+/// graph.add_edge(5, &'b', &'a');
+/// graph.add_edge(2, &'b', &'d');
+/// graph.add_edge(9, &'c', &'a');
+/// graph.add_edge(1, &'c', &'d');
+/// graph.add_edge(3, &'d', &'b');
+/// graph.add_edge(7, &'d', &'c');
 /// 
 /// // Run dijkstra's algorithm to determine the shortest path, result contains the shortest distance.
-/// let result = dijkstra(&mut graph, &'b', &'c').unwrap_or(-1);
-/// assert_eq!(9, result);
+/// let result = dijkstra(&mut graph, &'b', &'c');
+/// assert_eq!(result, Some(9));
 /// 
-/// // Run algorithm again, returns -1 because no node exists that connects e to the rest of the graph.
-/// let result = dijkstra(&mut graph, &'a', &'e').unwrap_or(-1);
-/// assert_eq!(-1, result);
-/// 
-/// # Ok::<(), AddEdgeError>(())
+/// // Run algorithm again, returns None because no node exists that connects e to the rest of the graph.
+/// let result = dijkstra(&mut graph, &'a', &'e');
+/// assert_eq!(result, None);
 /// ```
 /// It is also possible to create a graph from a vector. For more information take a look [here](struct.Graph.html#method.from_i32_vec).
 pub fn dijkstra<T: Display + Clone + Eq + Hash>(graph: &mut Graph<T>, source_node_id: &T, target_node_id: &T) -> Option<i32> {
@@ -118,15 +116,15 @@ mod tests {
         graph.add_node("Brussels");
         graph.add_node("Copenhagen");
         graph.add_node("Oslo");
-        graph.add_edge(5, &"Berlin", &"New York").unwrap();
-        graph.add_edge(6, &"Berlin", &"Brussels").unwrap();
-        graph.add_edge(2, &"New York", &"Berlin").unwrap();
-        graph.add_edge(9, &"New York", &"Copenhagen").unwrap();
-        graph.add_edge(7, &"Brussels", &"Berlin").unwrap();
-        graph.add_edge(2, &"Brussels", &"Copenhagen").unwrap();
-        graph.add_edge(5, &"Copenhagen", &"Brussels").unwrap();
-        graph.add_edge(1, &"Copenhagen", &"New York").unwrap();
-        graph.add_double_edge(10, &"Copenhagen", &"Oslo").unwrap();
+        graph.add_edge(5, &"Berlin", &"New York");
+        graph.add_edge(6, &"Berlin", &"Brussels");
+        graph.add_edge(2, &"New York", &"Berlin");
+        graph.add_edge(9, &"New York", &"Copenhagen");
+        graph.add_edge(7, &"Brussels", &"Berlin");
+        graph.add_edge(2, &"Brussels", &"Copenhagen");
+        graph.add_edge(5, &"Copenhagen", &"Brussels");
+        graph.add_edge(1, &"Copenhagen", &"New York");
+        graph.add_double_edge(10, &"Copenhagen", &"Oslo");
         println!("Length: {}", dijkstra(&mut graph, &"Berlin", &"Oslo").unwrap_or(-1));
         println!("{}", graph);
     }
@@ -144,14 +142,14 @@ mod tests {
          graph.add_node('e');
 
          // Add edges between nodes
-         graph.add_edge(3, &'a', &'b').unwrap();
-         graph.add_edge(4, &'a', &'c').unwrap();
-         graph.add_edge(5, &'b', &'a').unwrap();
-         graph.add_edge(2, &'b', &'d').unwrap();
-         graph.add_edge(9, &'c', &'a').unwrap();
-         graph.add_edge(1, &'c', &'d').unwrap();
-         graph.add_edge(3, &'d', &'b').unwrap();
-         graph.add_edge(7, &'d', &'c').unwrap();
+         graph.add_edge(3, &'a', &'b');
+         graph.add_edge(4, &'a', &'c');
+         graph.add_edge(5, &'b', &'a');
+         graph.add_edge(2, &'b', &'d');
+         graph.add_edge(9, &'c', &'a');
+         graph.add_edge(1, &'c', &'d');
+         graph.add_edge(3, &'d', &'b');
+         graph.add_edge(7, &'d', &'c');
 
          // Run dijkstra's algorithm to determine the shortest path, result contains the shortest distance.
          let result = dijkstra(&mut graph, &'b', &'c').unwrap_or(-1);
