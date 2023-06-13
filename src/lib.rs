@@ -72,9 +72,6 @@ struct Edge<T: Display> {
 }
 
 /// Graph data structure to organize nodes that are connected to each other with edges.
-/// 
-/// # Minimal Example
-/// //TODO Add minimal example
 #[derive(Debug)]
 pub struct Graph<T: Display> {
     /// All nodes contained in this graph
