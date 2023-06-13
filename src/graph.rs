@@ -318,6 +318,35 @@ impl<'a, T: Display + Clone + Eq + Hash> Graph<T> {
         false
     }    
 
+    /// Returns the shortest distance to the target node.
+    /// 
+    /// Requires that a pathfinding algorithm has run to set the shortest distance.
+    /// 
+    /// If the `target_node_id` is not contained within the graph, `None` is returned instead of the distance.
+    /// 
+    /// # Example
+    /// ```
+    /// use simple_graph_algorithms::{Graph, algorithms::dijkstra_graph};
+    /// 
+    /// let mut graph = Graph::new();
+    /// graph.add_node('a');
+    /// graph.add_node('b');
+    /// graph.add_node('c');
+    /// graph.add_edge(1, &'a', &'b');
+    /// graph.add_edge(2, &'b', &'c');
+    /// 
+    /// dijkstra_graph(&mut graph, &'a')?;
+    /// 
+    /// assert_eq!(graph.node_shortest_distance(&'b'), Some(1));
+    /// assert_eq!(graph.node_shortest_distance(&'c'), Some(3));
+    /// assert_eq!(graph.node_shortest_distance(&'d'), None);
+    /// # Ok::<(), ()>(())
+    /// ```
+    pub fn node_shortest_distance(&self, target_node_id: &T) -> Option<i32> {
+        let node = self.nodes.get(&target_node_id)?;
+        Some(node.borrow().distance)
+    }
+
     /// Returns a string illustrating the shortest path to the target node.
     /// 
     /// Requires that a pathfinding algorithm has run to fill the shortest paths.
@@ -349,8 +378,8 @@ impl<'a, T: Display + Clone + Eq + Hash> Graph<T> {
 //    /// let string = graph.node_by_id(&'d').unwrap().borrow_mut().shortest_path();
 //    /// assert_eq!("a -> b -> d", string)
 //    /// ```
-    pub fn node_shortest_path(&self, target_node_id: T) -> Option<String> {
-        let node = self.nodes.get(&target_node_id).unwrap();
+    pub fn node_shortest_path(&self, target_node_id: &T) -> Option<String> {
+        let node = self.nodes.get(&target_node_id)?;
         Some(node.borrow().shortest_path())
     }
 
@@ -578,7 +607,14 @@ fn neighbor_positions(pos: (usize, usize), max_x_size: usize, max_y_size: usize)
 
 #[cfg(test)]
 mod tests {
-    use crate::Graph;
+    use crate::{Graph, algorithms::dijkstra_graph, graph_1, graph_2};
+
+    fn simple_graph() -> Graph<&'static str> {
+        let mut graph = Graph::new();
+        graph.add_node("a");
+        graph.add_node("b");
+        graph
+    }
 
     #[test]
     fn test_node() {
@@ -632,6 +668,15 @@ mod tests {
     }
 
     #[test]
+    fn node_shortest_distance_test() {
+        let mut graph = graph_2();
+        dijkstra_graph(&mut graph, &'a').unwrap();
+        assert_eq!(graph.node_shortest_distance(&'b'), Some(3));
+        assert_eq!(graph.node_shortest_distance(&'d'), Some(5));
+        assert_eq!(graph.node_shortest_distance(&'g'), None);
+    }
+
+    #[test]
     fn test_graph_from_vec_vec_i32() {
         let mut vec: Vec<Vec<i32>> = Vec::new();
         let vec_inner_1 = vec![3, 4, 5];
@@ -666,12 +711,5 @@ mod tests {
         assert_eq!(graph.contains_edge(&String::from("a"), &String::from("c")), true);
         //TODO add dijkstra implementation
         //assert_eq!(8, dijkstra(&mut graph, &String::from("a"), &String::from("d")).unwrap_or(-1));
-    }
-
-    fn simple_graph() -> Graph<&'static str> {
-        let mut graph = Graph::new();
-        graph.add_node("a");
-        graph.add_node("b");
-        graph
     }
 }

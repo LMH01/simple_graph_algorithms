@@ -166,45 +166,7 @@ fn calc_min_distance<T: Display + Eq + Clone>(node: &Rc<RefCell<Node<T>>>, weigh
 
 #[cfg(test)]
 mod tests {
-    use crate::{Graph, algorithms::{dijkstra, dijkstra_graph}};
-
-    fn graph_1() -> Graph<&'static str> {
-        let mut graph = Graph::new();
-        graph.add_node("Berlin");
-        graph.add_node("New York");
-        graph.add_node("Brussels");
-        graph.add_node("Copenhagen");
-        graph.add_node("Oslo");
-        graph.add_node("London");
-        graph.add_edge(5, &"Berlin", &"New York");
-        graph.add_edge(6, &"Berlin", &"Brussels");
-        graph.add_edge(2, &"New York", &"Berlin");
-        graph.add_edge(9, &"New York", &"Copenhagen");
-        graph.add_edge(7, &"Brussels", &"Berlin");
-        graph.add_edge(2, &"Brussels", &"Copenhagen");
-        graph.add_edge(5, &"Copenhagen", &"Brussels");
-        graph.add_edge(1, &"Copenhagen", &"New York");
-        graph.add_double_edge(10, &"Copenhagen", &"Oslo");
-        graph
-    }
-    
-    fn graph_2() -> Graph<char> {
-        let mut graph: Graph<char> = Graph::new();
-        graph.add_node('a');
-        graph.add_node('b');
-        graph.add_node('c');
-        graph.add_node('d');
-        graph.add_node('e');
-        graph.add_edge(3, &'a', &'b');
-        graph.add_edge(4, &'a', &'c');
-        graph.add_edge(5, &'b', &'a');
-        graph.add_edge(2, &'b', &'d');
-        graph.add_edge(9, &'c', &'a');
-        graph.add_edge(1, &'c', &'d');
-        graph.add_edge(3, &'d', &'b');
-        graph.add_edge(7, &'d', &'c');
-        graph
-    }
+    use crate::{Graph, algorithms::{dijkstra, dijkstra_graph}, graph_1, graph_2};
 
     #[test]
     fn dijkstra_test_1() {
