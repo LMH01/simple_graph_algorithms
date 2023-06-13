@@ -1,4 +1,46 @@
-use std::{fmt::Display, rc::Rc, cell::RefCell, collections::{HashSet, HashMap}};
+//! # Overview
+//! 
+//! All algorithms in this crate are run using the [Graph](struct.Graph.html) struct.
+//! It is used to organize nodes that are connected to each user using weighted edges
+//! and to provide a simple to use interface.
+//!
+//! Click [here](algorithms/index.html#algorithms-implemented) to see a list of implemented algorithms.
+//!  
+//! # Minimal working example
+//! ```
+//! use simple_graph_algorithms::{Graph, algorithms::dijkstra};
+//! 
+//! fn main() {
+//!     // Create empty graph
+//!     let mut graph = Graph::new();
+//! 
+//!     // Add new nodes to the graph
+//!     graph.add_node("a");
+//!     graph.add_node("b");
+//!     graph.add_node("c");
+//!     graph.add_node("d");
+//!     graph.add_node("e");
+//! 
+//!     // Add edges to the graph
+//!     graph.add_edge(1, &"a", &"b"); // Adds an edge that leads from a to b with weight 1
+//!     graph.add_edge(2, &"a", &"c");
+//!     graph.add_edge(5, &"b", &"d");
+//!     graph.add_edge(3, &"c", &"a");
+//!     graph.add_edge(4, &"d", &"a");
+//!     graph.add_edge(2, &"d", &"c");
+//!     graph.add_edge(3, &"c", &"e");
+//!     
+//!     // Calculate the shortest distance from node "a" to node "d" using dijkstra's algorithm
+//!     let distance = dijkstra(&mut graph, &"a", &"d");
+//!     assert_eq!(distance, Ok(Some(6)));
+//! 
+//!     // Get more distances
+//!     assert_eq!(graph.node_shortest_distance(&"c"), Some(2));
+//!     assert_eq!(graph.node_shortest_distance(&"e"), Some(5));
+//! }
+//! ```
+
+use std::{fmt::Display, rc::Rc, cell::RefCell, collections::HashMap};
 
 /// Contains implementations for the graph to work.
 mod graph;

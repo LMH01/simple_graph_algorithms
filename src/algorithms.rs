@@ -1,7 +1,71 @@
+//! # Algorithms implemented
+//! 
+//! ## Pathfinding algorithms
+//! 
+//! - [Bellman-Ford algorithm](fn.bellman_ford.html)
+//! - [Dijkstra's algorithm](fn.dijkstra.html)
+//! 
+//! # Note on algorithm variants
+//! 
+//! All pathfinding algorithms have two variants: `ALGORITHM_NAME` and `ALGORITHM_NAME_graph`.
+//! The only difference is that the `ALGORITHM_NAME` implementation takes a third argument that
+//! provides a target node and that the function returns the distance from the source node
+//! to that target node, when a path exists.
+//! 
+//! ## What variant should I choose?
+//! 
+//! You should use `ALGORITHM_NAME` when you need the distance from one node to a single other node 
+//! and `ALGORITHM_NAME_graph` when you need the distance from one node to several other nodes.
+//! 
+//! Note that you can use [Graph::node_shortest_distance](../struct.Graph.html#method.node_shortest_distance) to receive further shortest paths to other nodes once
+//! `ALGORITHM_NAME` has run.
+//! 
+//! ## Example
+//! 
+//! These two code snippets are equal in what they achieve, the shortest distance from `a` to `c`
+//! is stored in the variable `distance` at the end of each snippet.
+//! 
+//! The functions [dijkstra](fn.dijkstra.html) and [dijkstra_graph](fn.dijkstra_graph.html) are used in this example.
+//! 
+//! ### Version using `ALGORITHM_NAME`
+//! ```
+//! use simple_graph_algorithms::{Graph, algorithms::dijkstra};
+//! 
+//! let mut graph = Graph::new();
+//! 
+//! graph.add_node("a");
+//! graph.add_node("b");
+//! graph.add_node("c");
+//! graph.add_edge(1, &"a", &"b");
+//! graph.add_edge(2, &"b", &"c");
+//! 
+//! let distance = dijkstra(&mut graph, &"a", &"c").expect("Either node not contained in graph").expect("No path found");
+//! 
+//! // distance now stores the shortest distance from a to c.
+//! ```
+//! 
+//! ### Version using `ALGORITHM_NAME_graph`
+//! ```
+//! use simple_graph_algorithms::{Graph, algorithms::dijkstra_graph};
+//! 
+//! let mut graph = Graph::new();
+//! 
+//! graph.add_node("a");
+//! graph.add_node("b");
+//! graph.add_node("c");
+//! graph.add_edge(1, &"a", &"b");
+//! graph.add_edge(2, &"b", &"c");
+//! 
+//! dijkstra_graph(&mut graph, &"a").expect("Node a is missing from the graph!");
+//! 
+//! let distance = graph.node_shortest_distance(&"a").expect("Node is missing from the graph!");
+//! 
+//! // distance now stores the shortest distance from a to c.
+//! ```
+
 use std::{fmt::Display, hash::Hash, collections::{BinaryHeap, HashSet}, rc::Rc, cell::RefCell};
 
 use crate::{Graph, Node};
-
 
 /// Calculates the shortest distance between one source node and all other nodes on the graph using
 /// [Dijkstra's algorithm](https://en.wikipedia.org/wiki/Dijkstra%27s_algorithm).
