@@ -356,7 +356,9 @@ impl<'a, T: Display + Clone + Eq + Hash> Graph<T> {
     /// 
     /// If the `target_node_id` is not contained within the graph, `None` is returned instead of the distance.
     /// 
-    /// # Example
+    /// # Examples
+    /// 
+    /// ## Use pathfinding algorithm that does not return a distance
     /// ```
     /// use simple_graph_algorithms::{Graph, algorithms::dijkstra_graph};
     /// 
@@ -373,6 +375,22 @@ impl<'a, T: Display + Clone + Eq + Hash> Graph<T> {
     /// assert_eq!(graph.node_shortest_distance(&'c'), Some(3));
     /// assert_eq!(graph.node_shortest_distance(&'d'), None);
     /// # Ok::<(), ()>(())
+    /// ```
+    /// ## Use pathfinding algorithm that returns a distance to a target node
+    /// ```
+    /// use simple_graph_algorithms::{Graph, algorithms::dijkstra};
+    /// 
+    /// let mut graph = Graph::new();
+    /// graph.add_node('a');
+    /// graph.add_node('b');
+    /// graph.add_node('c');
+    /// graph.add_edge(1, &'a', &'b');
+    /// graph.add_edge(2, &'b', &'c');
+    /// 
+    /// assert_eq!(dijkstra(&mut graph, &'a', &'b'), Ok(Some(1)));
+    /// 
+    /// assert_eq!(graph.node_shortest_distance(&'c'), Some(3));
+    /// assert_eq!(graph.node_shortest_distance(&'d'), None);
     /// ```
     pub fn node_shortest_distance(&self, target_node_id: &T) -> Option<i32> {
         let node = self.nodes.get(&target_node_id)?;
