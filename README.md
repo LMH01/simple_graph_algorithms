@@ -4,7 +4,7 @@ This library aims to provide simple to use implementations for various algorithm
 
 ## Algorithms
 
-The following algorithms will be available in this library when the first version releases:
+The following algorithms are currently implemented in this library:
 
 - **[Dijkstra's algorithm](https://en.wikipedia.org/wiki/Dijkstra%27s_algorithm)**
 - **[Bellman-Ford algorithm](https://en.wikipedia.org/wiki/Bellman%E2%80%93Ford_algorithm)**
