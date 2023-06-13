@@ -246,6 +246,8 @@ impl<'a, T: Display + Clone + Eq + Hash> Graph<T> {
         Ok(())
     }
 
+    //TODO add function try_add_double_edge
+
     /// Adds a new edge to the graph that connects two nodes in both directions.
     /// For that to succeed both nodes are required to be contained within the graph.
     /// 
