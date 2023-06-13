@@ -389,7 +389,7 @@ mod tests {
     }
 
     #[test]
-    fn bellman_ford_test_negative() {
+    fn bellman_ford_negative_edges_test() {
         let mut graph = graph_with_negative_edges();
         println!("{graph}");
         assert_eq!(bellman_ford(&mut graph, &'c', &'b'), Ok(Some(1)));
@@ -398,7 +398,7 @@ mod tests {
     }
 
     #[test]
-    fn bellman_ford_test_node_shortest_path() {
+    fn bellman_ford_node_shortest_path_test() {
         let mut graph = graph_with_negative_edges();
         assert!(bellman_ford(&mut graph, &'d', &'a').is_ok());
         assert_eq!(graph.node_shortest_path(&'a').unwrap(), "d -> b -> c -> a");

@@ -657,7 +657,7 @@ fn neighbor_positions(pos: (usize, usize), max_x_size: usize, max_y_size: usize)
 
 #[cfg(test)]
 mod tests {
-    use crate::{Graph, algorithms::dijkstra_graph, graph_1, graph_2};
+    use crate::{Graph, algorithms::{dijkstra_graph, dijkstra}, graph_1, graph_2};
 
     fn simple_graph() -> Graph<&'static str> {
         let mut graph = Graph::new();
@@ -667,14 +667,14 @@ mod tests {
     }
 
     #[test]
-    fn test_node() {
+    fn node_test() {
         let graph = simple_graph();
         assert!(graph.contains_node(&"a"));
         assert!(graph.contains_node(&"b"));
     }
 
     #[test]
-    fn test_add_nodes() {
+    fn add_nodes_test() {
         let mut graph = Graph::new();
         let vec = vec!["a", "b", "c"];
         assert_eq!(graph.add_nodes(vec.clone()), 0);
@@ -685,7 +685,7 @@ mod tests {
     }
 
     #[test]
-    fn test_add_edge() {
+    fn add_edge_test() {
         let mut graph = simple_graph();
         assert_eq!(graph.add_edge(1, &"a", &"b"), true);
         assert_eq!(graph.add_edge(1, &"c", &"d"), false);
@@ -694,7 +694,7 @@ mod tests {
     }
 
     #[test]
-    fn test_add_double_edge() {
+    fn add_double_edge_test() {
         let mut graph = simple_graph();
         assert_eq!(graph.add_double_edge(1, &"a", &"b"), true);
         assert!(graph.contains_edge(&"a", &"b"));
@@ -702,7 +702,7 @@ mod tests {
     }
 
     #[test]
-    fn test_try_add_edge_errors() {
+    fn try_add_edge_errors_test() {
         let mut graph = simple_graph();
         assert_eq!(graph.try_add_edge(1, &"c", &"b"), Err(crate::AddEdgeError::SourceMissing));
         assert_eq!(graph.try_add_edge(1, &"b", &"d"), Err(crate::AddEdgeError::TargetMissing));
@@ -710,7 +710,7 @@ mod tests {
     }
 
     #[test]
-    fn test_try_add_double_edge_errors() {
+    fn try_add_double_edge_errors_test() {
         let mut graph = simple_graph();
         assert_eq!(graph.try_add_double_edge(1, &"c", &"b"), Err(crate::AddEdgeError::SourceMissing));
         assert_eq!(graph.try_add_double_edge(1, &"b", &"d"), Err(crate::AddEdgeError::TargetMissing));
@@ -727,7 +727,7 @@ mod tests {
     }
 
     #[test]
-    fn test_graph_from_vec_vec_i32() {
+    fn graph_from_vec_vec_i32_test() {
         let mut vec: Vec<Vec<i32>> = Vec::new();
         let vec_inner_1 = vec![3, 4, 5];
         let vec_inner_2 = vec![1, 2, 3];
@@ -745,7 +745,7 @@ mod tests {
     }
 
     #[test]
-    fn graph_from_instructions() {
+    fn from_instructions_test() {
         let mut lines = Vec::new();
         lines.push(String::from("node: a"));
         lines.push(String::from("node: b"));
@@ -759,7 +759,6 @@ mod tests {
         let mut graph = Graph::<String>::from_instructions(&lines);
         assert_eq!(graph.size(), 4);
         assert_eq!(graph.contains_edge(&String::from("a"), &String::from("c")), true);
-        //TODO add dijkstra implementation
-        //assert_eq!(8, dijkstra(&mut graph, &String::from("a"), &String::from("d")).unwrap_or(-1));
+        assert_eq!(dijkstra(&mut graph, &String::from("a"), &String::from("d")), Ok(Some(8)));
     }
 }
