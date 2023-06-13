@@ -166,17 +166,16 @@ fn calc_min_distance<T: Display + Eq + Clone>(node: &Rc<RefCell<Node<T>>>, weigh
 
 #[cfg(test)]
 mod tests {
-    use crate::{Graph, algorithms::dijkstra};
+    use crate::{Graph, algorithms::{dijkstra, dijkstra_graph}};
 
-    
-    #[test]
-    fn dijkstra_test_1() {
+    fn graph_1() -> Graph<&'static str> {
         let mut graph = Graph::new();
         graph.add_node("Berlin");
         graph.add_node("New York");
         graph.add_node("Brussels");
         graph.add_node("Copenhagen");
         graph.add_node("Oslo");
+        graph.add_node("London");
         graph.add_edge(5, &"Berlin", &"New York");
         graph.add_edge(6, &"Berlin", &"Brussels");
         graph.add_edge(2, &"New York", &"Berlin");
@@ -186,23 +185,16 @@ mod tests {
         graph.add_edge(5, &"Copenhagen", &"Brussels");
         graph.add_edge(1, &"Copenhagen", &"New York");
         graph.add_double_edge(10, &"Copenhagen", &"Oslo");
-        //println!("Length: {}", dijkstra(&mut graph, &"Berlin", &"Oslo").unwrap_or(-1));
-        println!("{}", graph);
+        graph
     }
-
-    #[test]
-    fn dijkstra_test_2() {
-        // Create new graph
+    
+    fn graph_2() -> Graph<char> {
         let mut graph: Graph<char> = Graph::new();
-
-        // Add nodes to graph
         graph.add_node('a');
         graph.add_node('b');
         graph.add_node('c');
         graph.add_node('d');
         graph.add_node('e');
-
-        // Add edges between nodes
         graph.add_edge(3, &'a', &'b');
         graph.add_edge(4, &'a', &'c');
         graph.add_edge(5, &'b', &'a');
@@ -211,14 +203,31 @@ mod tests {
         graph.add_edge(1, &'c', &'d');
         graph.add_edge(3, &'d', &'b');
         graph.add_edge(7, &'d', &'c');
+        graph
+    }
 
-        // Run dijkstra's algorithm to determine the shortest path, result contains the shortest distance.
+    #[test]
+    fn dijkstra_test_1() {
+        let mut graph = graph_1();
+        assert_eq!(dijkstra(&mut graph, &"New York", &"Oslo"), Ok(Some(19)));
+        assert_eq!(dijkstra(&mut graph, &"New York", &"London"), Ok(None));
+        assert_eq!(dijkstra(&mut graph, &"New York", &"Munic"), Err(()));
+    }
+
+    #[test]
+    fn dijkstra_test_2() {
+        let mut graph = graph_2();
         assert_eq!(dijkstra(&mut graph, &'b', &'c'), Ok(Some(9)));
-
-        // Run algorithm again, returns -1 because no node exists that connects e to the rest of the graph.
         assert_eq!(dijkstra(&mut graph, &'a', &'e'), Ok(None)); 
         assert_eq!(dijkstra(&mut graph, &'a', &'d'), Ok(Some(5)));
         println!("Length: {:?}", dijkstra(&mut graph, &'a', &'d').unwrap_or(None));
         println!("{}", graph);
+    }
+
+    #[test]
+    fn dijkstra_graph_test() {
+        let mut graph = graph_1();
+        assert_eq!(dijkstra_graph(& mut graph, &"London"), Ok(()));
+        assert_eq!(dijkstra_graph(& mut graph, &"Los Angeles"), Err(()));
     }
 }
