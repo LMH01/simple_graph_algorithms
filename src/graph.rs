@@ -173,7 +173,7 @@ impl<'a, T: Display + Clone + Eq + Hash> Graph<T> {
     }
 
     /// Adds a new edge to the graph that connects two nodes in a single direction from source to target.
-    /// For that succeed both nodes are required to be contained within the graph.
+    /// For that to succeed both nodes are required to be contained within the graph.
     /// 
     /// The `weight` defines "the distance" between the `source` and `target` nodes.
     /// 
