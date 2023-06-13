@@ -1,7 +1,7 @@
 //! # Overview
 //! 
 //! All algorithms in this crate are run using the [Graph](struct.Graph.html) struct.
-//! It is used to organize nodes that are connected to each user using weighted edges
+//! It is used to organize nodes that are connected to each other using weighted edges
 //! and to provide a simple to use interface.
 //!
 //! Click [here](algorithms/index.html#algorithms-implemented) to see a list of implemented algorithms.

@@ -39,7 +39,9 @@
 //! graph.add_edge(1, &"a", &"b");
 //! graph.add_edge(2, &"b", &"c");
 //! 
-//! let distance = dijkstra(&mut graph, &"a", &"c").expect("Either node not contained in graph").expect("No path found");
+//! let distance = dijkstra(&mut graph, &"a", &"c")
+//!     .expect("Either node not contained in graph")
+//!     .expect("No path found");
 //! 
 //! // distance now stores the shortest distance from a to c.
 //! ```
@@ -56,9 +58,11 @@
 //! graph.add_edge(1, &"a", &"b");
 //! graph.add_edge(2, &"b", &"c");
 //! 
-//! dijkstra_graph(&mut graph, &"a").expect("Node a is missing from the graph!");
+//! dijkstra_graph(&mut graph, &"a")
+//!     .expect("Node a is missing from the graph!");
 //! 
-//! let distance = graph.node_shortest_distance(&"a").expect("Node is missing from the graph!");
+//! let distance = graph.node_shortest_distance(&"c")
+//!     .expect("Node is missing from the graph!");
 //! 
 //! // distance now stores the shortest distance from a to c.
 //! ```
