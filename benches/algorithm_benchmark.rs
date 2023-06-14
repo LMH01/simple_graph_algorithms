@@ -3,7 +3,6 @@ use simple_graph_algorithms::{Graph, algorithms::{dijkstra, bellman_ford}};
 
 fn criterion_benchmark(c: &mut Criterion) {
     let mut graph = graph();
-    assert!(false);
     c.bench_function("dijkstra 100x100", |b| b.iter(|| {
         dijkstra(&mut graph, &String::from("[0|0]")).unwrap();
     }));
