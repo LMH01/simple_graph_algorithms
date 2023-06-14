@@ -12,3 +12,14 @@ The following algorithms are currently implemented in this library:
 ## Documentation
 
 The documentation will be hosted on [docs.rs](https://docs.rs) once the first version has been released to [crates.io](https://crates.io).
+
+## Performance
+
+| Algorithm | Mean time over 100 runs on a graph with 10,000 nodes and 39600 edges|
+| - | - |
+| Bellman-Ford | 1.8786 s |
+| Dijkstra | 52.874 ms |
+
+These tests where performed on a `Ryzen 5 7600x`. Performance might be slower on older hardware.
+
+To run these tests yourself type `cargo bench`, a full run will take a few minutes.

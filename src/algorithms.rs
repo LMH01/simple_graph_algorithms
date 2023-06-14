@@ -256,4 +256,5 @@ mod tests {
         assert!(spt.is_ok());
         assert_eq!(spt.unwrap().shortest_path(&'a').unwrap().to_string(), "d -> b -> c -> a");
     }
+
 }

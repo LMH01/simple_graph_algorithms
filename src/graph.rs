@@ -507,6 +507,7 @@ impl<T: Display + Clone + Eq + Hash + From<String>> From<&Vec<Vec<i32>>> for Gra
     /// //assert_eq!(8, dijkstra(&mut graph, &String::from("[0|0]"), &String::from("[2|2]")).unwrap_or(-1));
     /// ```
     fn from(value: &Vec<Vec<i32>>) -> Self {
+        let mut edges = 0;
         let mut graph: Graph<T> = Graph::new();
         for (i_y, y) in value.iter().enumerate() {
             for (i_x, _x) in y.iter().enumerate() {
@@ -517,10 +518,12 @@ graph.add_node(String::from(format!("[{}|{}]", i_x, i_y)).into());
             let max_x_size = y.len();
             for (i_x, x) in y.iter().enumerate() {
                 for neighbor in neighbor_positions((i_x, i_y), max_x_size, value.len()) {
+                    edges += 1;
                     graph.add_edge(*x, &format!("[{}|{}]", neighbor.0, neighbor.1).into(), &format!("[{}|{}]", i_x, i_y).into());
                 }
             }
         }
+        println!("{edges}");
         graph
     }
 }
