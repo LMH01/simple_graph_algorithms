@@ -15,7 +15,7 @@ The documentation will be hosted on [docs.rs](https://docs.rs) once the first ve
 
 ## Performance
 
-| Algorithm | Mean time over 100 runs on a graph with 10,000 nodes and 39600 edges|
+| Algorithm | Mean time over 100 runs on a graph with 10,000 nodes and 39,600 edges|
 | - | - |
 | Bellman-Ford | 1.8786 s |
 | Dijkstra | 52.874 ms |
