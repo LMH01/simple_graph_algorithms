@@ -120,7 +120,7 @@ impl<T: Display + Clone + Eq + Hash> ShortestPathTree<T> {
     /// The `distance` is the minimal distance to this node and `shortest_path` is the path taken to get to this node.
     /// 
     /// If either `distance` or `shortest_path` is None, no path will be added.
-    fn add_result(&mut self, node_id: T, distance: Option<i32>, shortest_path: Option<ShortestPath<T>>) {// add test
+    fn add_result(&mut self, node_id: T, distance: Option<i32>, shortest_path: Option<ShortestPath<T>>) {
         if shortest_path.is_none() | distance.is_none() {
             self.results.insert(node_id, None);
         } else {
@@ -135,7 +135,7 @@ impl<T: Display + Clone + Eq + Hash> ShortestPathTree<T> {
     /// 
     /// For further information and for what can be done with the shortest
     /// path see [ShortestPath](struct.ShortestPath.html).
-    pub fn shortest_path(&self, target_node_id: &T) -> Option<&ShortestPath<T>> {//TODO test
+    pub fn shortest_path(&self, target_node_id: &T) -> Option<&ShortestPath<T>> {
         match self.results.get(target_node_id)? {
             Some(res) => Some(&res.1),
             None => None
@@ -169,7 +169,7 @@ impl<T: Display + Clone + Eq + Hash> ShortestPathTree<T> {
     /// # Ok(())
     /// # }
     /// ```
-    pub fn shortest_distance(&self, target_node_id: &T) -> Option<i32> {//TODO Update example and add test
+    pub fn shortest_distance(&self, target_node_id: &T) -> Option<i32> {
         match self.results.get(&target_node_id)? {
             Some(res) => Some(res.0),
             None => None,
@@ -178,7 +178,7 @@ impl<T: Display + Clone + Eq + Hash> ShortestPathTree<T> {
 
     /// Creates a shortest path tree from a graph and a source node. A pathfinding algorithm
     /// should have run on the graph before the shortest path tree is constructed.
-    fn from_graph(graph: &Graph<T>, source: &T) -> Self {//TODO add test
+    fn from_graph(graph: &Graph<T>, source: &T) -> Self {
         let mut spt = ShortestPathTree::new(source.clone());
         for (id, node) in &graph.nodes {
             if let Ok(path) = ShortestPath::try_from(node) {
@@ -209,12 +209,12 @@ impl<T: Display + Clone> ShortestPath<T> {
     }
 
     /// The source node where this shortest path starts
-    pub fn source(&self) -> Option<&T> {//TODO Add example and test
+    pub fn source(&self) -> Option<&T> {//TODO Add example
         self.path.first().clone()
     }
 
     /// The target node where this shortest path ends
-    pub fn target(&self) -> Option<&T> {//TODO Add example and test
+    pub fn target(&self) -> Option<&T> {//TODO Add example
         self.path.last().clone()
     }
 
@@ -225,7 +225,7 @@ impl<T: Display + Clone> ShortestPath<T> {
     /// 
     /// # Example
     /// //TODO Add example
-    pub fn path(&self) -> &Vec<T> {//TODO Add test
+    pub fn path(&self) -> &Vec<T> {
         &self.path
     }
 
@@ -422,12 +422,65 @@ mod tests {
         }
     }
 
-    //#[test]
-    //fn node_shortest_distance_test() {
-    //    let mut graph = graph_2();
-    //    dijkstra_graph(&mut graph, &'a').unwrap();
-    //    assert_eq!(graph.node_shortest_distance(&'b'), Some(3));
-    //    assert_eq!(graph.node_shortest_distance(&'d'), Some(5));
-    //    assert_eq!(graph.node_shortest_distance(&'g'), None);
-    //}
+    mod shortest_path {
+        use crate::{graph_2, algorithms::dijkstra, ShortestPath};
+
+
+        #[test]
+        fn source_test() {
+            let mut graph = graph_2();
+            let spt = dijkstra(&mut graph, &'a').unwrap();
+            assert_eq!(spt.shortest_path(&'a').unwrap().source(), Some(&'a'));
+            assert_eq!(spt.shortest_path(&'d').unwrap().source(), Some(&'a'));
+            let spt = dijkstra(&mut graph, &'d').unwrap();
+            assert_eq!(spt.shortest_path(&'a').unwrap().source(), Some(&'d'));
+            assert_eq!(spt.shortest_path(&'d').unwrap().source(), Some(&'d'));
+        }
+
+        #[test]
+        fn target_test() {
+            let mut graph = graph_2();
+            let spt = dijkstra(&mut graph, &'a').unwrap();
+            assert_eq!(spt.shortest_path(&'a').unwrap().target(), Some(&'a'));
+            assert_eq!(spt.shortest_path(&'b').unwrap().target(), Some(&'b'));
+            assert_eq!(spt.shortest_path(&'c').unwrap().target(), Some(&'c'));
+            assert_eq!(spt.shortest_path(&'d').unwrap().target(), Some(&'d'));
+        }
+
+        #[test]
+        fn path() {
+            let mut graph = graph_2();
+            let spt = dijkstra(&mut graph, &'a').unwrap();
+            assert_eq!(spt.shortest_path(&'a').unwrap().path(), &vec!['a']);
+            assert_eq!(spt.shortest_path(&'b').unwrap().path(), &vec!['a', 'b']);
+            assert_eq!(spt.shortest_path(&'c').unwrap().path(), &vec!['a', 'c']);
+            assert_eq!(spt.shortest_path(&'d').unwrap().path(), &vec!['a', 'b', 'd']);
+        }
+
+        #[test]
+        fn display() {
+            let mut graph = graph_2();
+            let spt = dijkstra(&mut graph, &'a').unwrap();
+            assert_eq!(spt.shortest_path(&'a').unwrap().to_string(), "a");
+            assert_eq!(spt.shortest_path(&'b').unwrap().to_string(), "a -> b");
+            assert_eq!(spt.shortest_path(&'c').unwrap().to_string(), "a -> c");
+            assert_eq!(spt.shortest_path(&'d').unwrap().to_string(), "a -> b -> d");
+        }
+
+        #[test]
+        fn try_from_rc_ref_cell_node() {
+            let mut graph = graph_2();
+            dijkstra(&mut graph, &'a').unwrap();
+            let node = graph.nodes[&'d'].clone();
+            let shortest_path = ShortestPath::try_from(&node);
+            assert!(shortest_path.is_ok());
+            let shortest_path = shortest_path.unwrap();
+            assert_eq!(shortest_path.source(), Some(&'a'));
+            assert_eq!(shortest_path.target(), Some(&'d'));
+            assert_eq!(shortest_path.path(), &vec!['a', 'b', 'd']);
+            assert_eq!(shortest_path.to_string(), "a -> b -> d");
+        }
+
+    }
+
 }

@@ -230,8 +230,6 @@ impl<'a, T: Display + Clone + Eq + Hash> Graph<T> {
         Ok(())
     }
 
-    //TODO add function try_add_double_edge
-
     /// Adds a new edge to the graph that connects two nodes in a both directions.
     /// For that to succeed both nodes are required to be contained within the graph.
     /// 
@@ -400,7 +398,7 @@ impl<'a, T: Display + Clone + Eq + Hash> Graph<T> {
     /// # Example
     /// 
     /// ```rust
-    /// //use lmh01_pathfinding::algorithms::dijkstra;//TODO add dijkstra implementation
+    /// //use lmh01_pathfinding::algorithms::dijkstra;
     /// use simple_graph_algorithms::Graph;
     /// 
     /// // This lines vector should ideally constructed by parsing a file, below insertions are just for demonstration.
@@ -649,6 +647,7 @@ mod tests {
         let mut graph = Graph::<String>::from_instructions(&lines);
         assert_eq!(graph.size(), 4);
         assert_eq!(graph.contains_edge(&String::from("a"), &String::from("c")), true);
-        //assert_eq!(dijkstra(&mut graph, &String::from("a"), &String::from("d")), Ok(Some(8)));//TODO Add in dijkstra again
+        let spt = dijkstra(&mut graph, &String::from("a")).unwrap();
+        assert_eq!(spt.shortest_distance(&String::from("d")), Some(8));
     }
 }
