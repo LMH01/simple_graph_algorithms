@@ -10,7 +10,7 @@
 //! ```
 //! use simple_graph_algorithms::{Graph, algorithms::dijkstra};
 //! 
-//! fn main() {
+//! fn main() -> Result<(), ()> {
 //!     // Create empty graph
 //!     let mut graph = Graph::new();
 //! 
@@ -30,13 +30,15 @@
 //!     graph.add_edge(2, &"d", &"c");
 //!     graph.add_edge(3, &"c", &"e");
 //!     
-//!     // Calculate the shortest distance from node "a" to node "d" using dijkstra's algorithm
-//!     let distance = dijkstra(&mut graph, &"a", &"d");
-//!     assert_eq!(distance, Ok(Some(6)));
+//!     // Calculate the shortest path tree starting at node "a" using Dijkstra's algorithm
+//!     let spt = dijkstra(&mut graph, &"a")?;
 //! 
-//!     // Get more distances
-//!     assert_eq!(graph.node_shortest_distance(&"c"), Some(2));
-//!     assert_eq!(graph.node_shortest_distance(&"e"), Some(5));
+//!     // Get the shortest distance from "a" to other nodes
+//!     assert_eq!(spt.shortest_distance(&"d"), Some(6));
+//!     assert_eq!(spt.shortest_distance(&"c"), Some(2));
+//!     assert_eq!(spt.shortest_distance(&"e"), Some(5));
+//! 
+//!     Ok(())
 //! }
 //! ```
 
@@ -96,8 +98,8 @@ impl<T: Display> Graph<T> {
 
 /// Structure to store the shortest path and distance from one node 
 /// to other nodes after a pathfinding algorithm has been run on a graph.
-#[derive(Debug)]
-pub struct ShortestPathTree<T: Display + Clone> {
+#[derive(Debug, Eq, PartialEq)]
+pub struct ShortestPathTree<T: Display + Clone + Hash + Eq> {
     source: T,
     results: HashMap<T, Option<(i32, ShortestPath<T>)>>,
 }
@@ -135,34 +137,16 @@ impl<T: Display + Clone + Eq + Hash> ShortestPathTree<T> {
 
     /// Returns the shortest distance to the target node.
     /// 
-    /// Requires that a pathfinding algorithm has run to set the shortest distance.
-    /// 
-    /// If the `target_node_id` is not contained within the graph, `None` is returned instead of the distance.
+    /// If the `target_node_id` is not contained within the shortest path tree, 
+    /// `None` is returned instead of the distance.
     /// 
     /// # Examples
     /// 
     /// ## Use pathfinding algorithm that does not return a distance
     /// ```
-    /// use simple_graph_algorithms::{Graph, algorithms::dijkstra_graph};
-    /// 
-    /// let mut graph = Graph::new();
-    /// graph.add_node('a');
-    /// graph.add_node('b');
-    /// graph.add_node('c');
-    /// graph.add_edge(1, &'a', &'b');
-    /// graph.add_edge(2, &'b', &'c');
-    /// 
-    /// dijkstra_graph(&mut graph, &'a')?;
-    /// 
-    /// assert_eq!(graph.node_shortest_distance(&'b'), Some(1));
-    /// assert_eq!(graph.node_shortest_distance(&'c'), Some(3));
-    /// assert_eq!(graph.node_shortest_distance(&'d'), None);
-    /// # Ok::<(), ()>(())
-    /// ```
-    /// ## Use pathfinding algorithm that returns a distance to a target node
-    /// ```
     /// use simple_graph_algorithms::{Graph, algorithms::dijkstra};
     /// 
+    /// # fn main() -> Result<(), ()> {
     /// let mut graph = Graph::new();
     /// graph.add_node('a');
     /// graph.add_node('b');
@@ -170,10 +154,13 @@ impl<T: Display + Clone + Eq + Hash> ShortestPathTree<T> {
     /// graph.add_edge(1, &'a', &'b');
     /// graph.add_edge(2, &'b', &'c');
     /// 
-    /// assert_eq!(dijkstra(&mut graph, &'a', &'b'), Ok(Some(1)));
+    /// let spt = dijkstra(&mut graph, &'a')?;
     /// 
-    /// assert_eq!(graph.node_shortest_distance(&'c'), Some(3));
-    /// assert_eq!(graph.node_shortest_distance(&'d'), None);
+    /// assert_eq!(spt.shortest_distance(&'b'), Some(1));
+    /// assert_eq!(spt.shortest_distance(&'c'), Some(3));
+    /// assert_eq!(spt.shortest_distance(&'d'), None);
+    /// # Ok(())
+    /// # }
     /// ```
     pub fn shortest_distance(&self, target_node_id: &T) -> Option<i32> {//TODO Update example and add test
         match self.results.get(&target_node_id)? {
@@ -199,7 +186,7 @@ impl<T: Display + Clone + Eq + Hash> ShortestPathTree<T> {
 }
 
 /// The shortest path from one node to another.
-#[derive(Debug)]
+#[derive(Debug, Eq, PartialEq)]
 pub struct ShortestPath<T: Display + Clone> {//TODO check if it is possible to use references instead of T, add documentation
     /// Contains a list of node ids, first entry is the start node, last entry is the target node.
     path: Vec<T>, //TODO maybe add later that the distance between each node is stored as well

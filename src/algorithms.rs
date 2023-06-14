@@ -5,67 +5,6 @@
 //! - [Bellman-Ford algorithm](fn.bellman_ford.html)
 //! - [Dijkstra's algorithm](fn.dijkstra.html)
 //! 
-//! # Note on algorithm variants
-//! 
-//! All pathfinding algorithms have two variants: `ALGORITHM_NAME` and `ALGORITHM_NAME_graph`.
-//! The only difference is that the `ALGORITHM_NAME` implementation takes a third argument that
-//! provides a target node and that the function returns the distance from the source node
-//! to that target node, when a path exists.
-//! 
-//! ## What variant should I choose?
-//! 
-//! You should use `ALGORITHM_NAME` when you need the distance from one node to a single other node 
-//! and `ALGORITHM_NAME_graph` when you need the distance from one node to several other nodes.
-//! 
-//! Note that you can get further shortest paths after `ALGORITHM_NAME` has run by using [Graph::node_shortest_distance](../struct.Graph.html#method.node_shortest_distance).
-//! 
-//! ## Example
-//! 
-//! These two code snippets are equal in what they achieve, the shortest distance from `a` to `c`
-//! is stored in the variable `distance` at the end of each snippet.
-//! 
-//! The functions [dijkstra](fn.dijkstra.html) and [dijkstra_graph](fn.dijkstra_graph.html) are used in this example.
-//! 
-//! ### Version using `ALGORITHM_NAME`
-//! ```
-//! use simple_graph_algorithms::{Graph, algorithms::dijkstra};
-//! 
-//! let mut graph = Graph::new();
-//! 
-//! graph.add_node("a");
-//! graph.add_node("b");
-//! graph.add_node("c");
-//! graph.add_edge(1, &"a", &"b");
-//! graph.add_edge(2, &"b", &"c");
-//! 
-//! let distance = dijkstra(&mut graph, &"a", &"c")
-//!     .expect("Either node not contained in graph")
-//!     .expect("No path found");
-//! 
-//! // distance now stores the shortest distance from a to c.
-//! ```
-//! 
-//! ### Version using `ALGORITHM_NAME_graph`
-//! ```
-//! use simple_graph_algorithms::{Graph, algorithms::dijkstra_graph};
-//! 
-//! let mut graph = Graph::new();
-//! 
-//! graph.add_node("a");
-//! graph.add_node("b");
-//! graph.add_node("c");
-//! graph.add_edge(1, &"a", &"b");
-//! graph.add_edge(2, &"b", &"c");
-//! 
-//! dijkstra_graph(&mut graph, &"a")
-//!     .expect("Node a is missing from the graph!");
-//! 
-//! let distance = graph.node_shortest_distance(&"c")
-//!     .expect("Node is missing from the graph!");
-//! 
-//! // distance now stores the shortest distance from a to c.
-//! ```
-
 use std::{fmt::Display, hash::Hash, collections::{BinaryHeap, HashSet}, rc::Rc, cell::RefCell};
 
 use crate::{Graph, Node, ShortestPathTree};
@@ -79,12 +18,13 @@ use crate::{Graph, Node, ShortestPathTree};
 /// This function takes a `graph` on which the algorithm should be run and the id of the start node.
 /// 
 /// Returns `Ok(ShortestPathTree)` when the algorithm was run on the graph or `Err(())` when the start node is missing from the graph.
-/// The [ShortestPathTree](../struct.ShortestPathTree.html) can then be used to receive the shortest distance and path to a node.
+/// The [ShortestPathTree](../struct.ShortestPathTree.html) can then be used to retrieve the shortest distance and path to a node.
 /// 
 /// # Examples
 /// ```rust
-/// use simple_graph_algorithms::{Graph, algorithms::dijkstra};
+/// use simple_graph_algorithms::{Graph, ShortestPathTree, algorithms::dijkstra};
 /// 
+/// # fn main() -> Result<(), ()> {
 /// // Create new graph
 /// let mut graph: Graph<char> = Graph::new();
 /// 
@@ -101,15 +41,17 @@ use crate::{Graph, Node, ShortestPathTree};
 /// graph.add_edge(9, &'c', &'a');
 /// graph.add_edge(4, &'c', &'d');
 /// 
-/// // Run Dijkstra's algorithm to determine the shortest path, to each node starting at node `a`.
-/// assert_eq!(dijkstra_graph(&mut graph, &'a'), Ok(()));
+/// /// Run Dijkstra's algorithm to calculate the shortest path tree, starting at node a.
+/// let spt = dijkstra(&mut graph, &'a')?;
 /// 
-/// // Access shortest ways
-/// assert_eq!(graph.node_shortest_distance(&'c'), Some(4));
-/// assert_eq!(graph.node_shortest_distance(&'d'), Some(8));
+/// // Retrieve shortest distances
+/// assert_eq!(spt.shortest_distance(&'c'), Some(4));
+/// assert_eq!(spt.shortest_distance(&'d'), Some(8));
 /// 
-/// // Run algorithm again, returns Err because e does not exist in the graph.
-/// assert_eq!(dijkstra_graph(&mut graph, &'e'), Err(()));
+/// /// When run on a graph, that is missing the start node an Err is returned:
+/// assert_eq!(dijkstra(&mut graph, &'e'), Err(()));
+/// # Ok(())
+/// # }
 /// ```
 pub fn dijkstra<T: Display + Clone + Eq + Hash>(graph: &mut Graph<T>, source_node_id: &T) -> Result<ShortestPathTree<T>, ()> {
     graph.reset_nodes();
@@ -173,8 +115,9 @@ fn calc_min_distance<T: Display + Eq + Clone>(node: &Rc<RefCell<Node<T>>>, weigh
 /// 
 /// # Examples
 /// ```rust
-/// use simple_graph_algorithms::{Graph, algorithms::bellman_ford_graph};
+/// use simple_graph_algorithms::{Graph, ShortestPathTree, algorithms::bellman_ford};
 /// 
+/// # fn main() -> Result<(), ()> {
 /// // Create new graph
 /// let mut graph: Graph<char> = Graph::new();
 /// 
@@ -191,15 +134,17 @@ fn calc_min_distance<T: Display + Eq + Clone>(node: &Rc<RefCell<Node<T>>>, weigh
 /// graph.add_edge(9, &'c', &'a');
 /// graph.add_edge(4, &'c', &'d');
 /// 
-/// // Run Bellman-Ford algorithm to determine the shortest path, to each node starting at node `a`.
-/// assert_eq!(bellman_ford_graph(&mut graph, &'a'), Ok(()));
+/// /// Run Bellman-Ford algorithm to calculate the shortest path tree, starting at node a.
+/// let spt = bellman_ford(&mut graph, &'a')?;
 /// 
-/// // Access shortest ways
-/// assert_eq!(graph.node_shortest_distance(&'c'), Some(4));
-/// assert_eq!(graph.node_shortest_distance(&'d'), Some(8));
+/// // Retrieve shortest distances
+/// assert_eq!(spt.shortest_distance(&'c'), Some(4));
+/// assert_eq!(spt.shortest_distance(&'d'), Some(8));
 /// 
-/// // Run algorithm again, returns Err because e does not exist in the graph.
-/// assert_eq!(bellman_ford_graph(&mut graph, &'e'), Err(()));
+/// /// When run on a graph, that is missing the start node an Err is returned:
+/// assert_eq!(bellman_ford(&mut graph, &'e'), Err(()));
+/// # Ok(())
+/// # }
 /// ```
 pub fn bellman_ford<T: Display + Eq + Clone + Hash>(graph: &mut Graph<T>, source_node_id: &T) -> Result<ShortestPathTree<T>, ()> {
     graph.reset_nodes();
