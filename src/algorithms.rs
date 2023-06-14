@@ -17,8 +17,7 @@
 //! You should use `ALGORITHM_NAME` when you need the distance from one node to a single other node 
 //! and `ALGORITHM_NAME_graph` when you need the distance from one node to several other nodes.
 //! 
-//! Note that you can use [Graph::node_shortest_distance](../struct.Graph.html#method.node_shortest_distance) to receive further shortest paths to other nodes once
-//! `ALGORITHM_NAME` has run.
+//! Note that you can get further shortest paths after `ALGORITHM_NAME` has run by using [Graph::node_shortest_distance](../struct.Graph.html#method.node_shortest_distance).
 //! 
 //! ## Example
 //! 
