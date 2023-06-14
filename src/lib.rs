@@ -128,8 +128,15 @@ impl<T: Display + Clone + Eq + Hash> ShortestPathTree<T> {
         }
     }
 
-    pub fn shortest_path(&self, node_id: &T) -> Option<&ShortestPath<T>> {//TODO Add doc, example and test
-        match self.results.get(node_id)? {
+    /// Returns the shortest path to the target node.
+    /// 
+    /// If the `target_node_id` is not contained within the shortest path tree,
+    /// `None` is returned.
+    /// 
+    /// For further information and for what can be done with the shortest
+    /// path see [ShortestPath](struct.ShortestPath.html).
+    pub fn shortest_path(&self, target_node_id: &T) -> Option<&ShortestPath<T>> {//TODO test
+        match self.results.get(target_node_id)? {
             Some(res) => Some(&res.1),
             None => None
         }
@@ -140,7 +147,7 @@ impl<T: Display + Clone + Eq + Hash> ShortestPathTree<T> {
     /// If the `target_node_id` is not contained within the shortest path tree, 
     /// `None` is returned instead of the distance.
     /// 
-    /// # Examples
+    /// # Example
     /// 
     /// ## Use pathfinding algorithm that does not return a distance
     /// ```
