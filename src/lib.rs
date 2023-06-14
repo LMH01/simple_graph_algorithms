@@ -193,7 +193,7 @@ impl<T: Display + Clone + Eq + Hash> ShortestPathTree<T> {
 }
 
 /// The shortest path from one node to another.
-#[derive(Debug, Eq, PartialEq)]
+#[derive(Debug, Eq, PartialEq, Clone)]
 pub struct ShortestPath<T: Display + Clone> {//TODO check if it is possible to use references instead of T, add documentation
     /// Contains a list of node ids, first entry is the start node, last entry is the target node.
     path: Vec<T>, //TODO maybe add later that the distance between each node is stored as well
@@ -284,11 +284,17 @@ impl<T: Display + Clone> TryFrom<&Rc<RefCell<Node<T>>>> for ShortestPath<T> {
 
     /// Tries to read the shortest path from the node.
     /// 
-    /// Will fail when the node does not contain a shortest path or when the distance is `i32::MAX`.
+    /// Will fail on the following occasions:
+    /// 
+    /// - When the node does not contain a shortest path and the distance is not 0
+    /// - when the distance is `i32::MAX`.
     fn try_from(value: &Rc<RefCell<Node<T>>>) -> Result<ShortestPath<T>, &'static str> {
-        if value.borrow().distance == i32::MAX || value.borrow().shortest_path.is_empty() {
+        if value.borrow().distance == 0 {
+            // It is tried to parse the shortest path to the source node
+            return Ok(ShortestPath::new(vec![value.borrow().id.clone()]));
+        } else if value.borrow().distance == i32::MAX || value.borrow().shortest_path.is_empty() {
             return Err("Unable to create shortest path from vector, vector is empty!");
-        }
+        } 
         let mut path = Vec::new();
         for node in &value.borrow().shortest_path {
             path.push(node.borrow().id.clone());
@@ -363,6 +369,58 @@ fn graph_2() -> Graph<char> {
 
 #[cfg(test)]
 mod tests {
+
+    mod shortest_path_tree {
+        use crate::{graph_2, algorithms::dijkstra, ShortestPath, graph, ShortestPathTree};
+
+        #[test]
+        fn add_result_test() {
+            let mut spt = ShortestPathTree::new('a');
+            let test_path = ShortestPath::new(vec!['a', 'd', 'c']);
+            spt.add_result('b', Some(5), Some(test_path.clone()));
+            let path = spt.shortest_path(&'b');
+            let distance = spt.shortest_distance(&'b');
+            assert!(path.is_some());
+            assert_eq!(path.unwrap(), &test_path);
+            assert_eq!(distance, Some(5));
+        }
+
+        #[test]
+        fn shortest_path_test() {
+            let mut graph = graph_2();
+            let spt = dijkstra(&mut graph, &'a');
+            assert!(spt.is_ok());
+            let should_path = vec!['a', 'b', 'd'];
+            let sp = ShortestPath::new(should_path);
+            assert_eq!(spt.as_ref().unwrap().shortest_path(&'d'), Some(&sp));
+            let should_path = vec!['a'];
+            let sp = ShortestPath::new(should_path);
+            assert_eq!(spt.unwrap().shortest_path(&'a'), Some(&sp));
+            let spt = dijkstra(&mut graph, &'d');
+            let should_path = vec!['d', 'b', 'a'];
+            let sp = ShortestPath::new(should_path);
+            assert_eq!(spt.unwrap().shortest_path(&'a'), Some(&sp));
+        }
+
+        #[test]
+        fn shortest_distance_test() {
+            let mut graph = graph_2();
+            let spt = dijkstra(&mut graph, &'c');
+            assert!(spt.is_ok());
+            let spt = spt.unwrap();
+            assert_eq!(spt.shortest_distance(&'b'), Some(4));
+            assert_eq!(spt.shortest_distance(&'a'), Some(9));
+        }
+
+        #[test]
+        fn from_graph_test() {
+            let mut graph = graph_2();
+            assert!(dijkstra(&mut graph, &'a').is_ok());
+            let spt = ShortestPathTree::from_graph(&graph, &'a');
+            assert_eq!(spt.source, 'a');
+            assert_eq!(spt.results[&'a'], Some((0, ShortestPath::new(vec!['a']))));
+        }
+    }
 
     //#[test]
     //fn node_shortest_distance_test() {
