@@ -5,6 +5,16 @@
 //! - [Bellman-Ford algorithm](fn.bellman_ford.html)
 //! - [Dijkstra's algorithm](fn.dijkstra.html)
 //! 
+//! # Performance
+//! 
+//! All algorithms where measured using [criterion](https://github.com/bheisler/criterion.rs)
+//! on a graph with 10,000 nodes and 39,600 edges. The algorithms where run 100 times on the test graph,
+//! the mean time is listed in the table below. The tests where performed on a `Ryzen 5 7600x` processor.
+//! 
+//! | Algorithm | Mean time per run |
+//! | - | - |
+//! | Bellman-Ford | 1.8786 s |
+//! | Dijkstra | 52.874 ms |
 use std::{fmt::Display, hash::Hash, collections::{BinaryHeap, HashSet}, rc::Rc, cell::RefCell};
 
 use crate::{Graph, Node, ShortestPathTree};
