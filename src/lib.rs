@@ -194,7 +194,7 @@ impl<T: Display + Clone + Eq + Hash> ShortestPathTree<T> {
 
 /// The shortest path from one node to another.
 #[derive(Debug, Eq, PartialEq, Clone)]
-pub struct ShortestPath<T: Display + Clone> {//TODO check if it is possible to use references instead of T, add documentation
+pub struct ShortestPath<T: Display + Clone> {// Add documentation
     /// Contains a list of node ids, first entry is the start node, last entry is the target node.
     path: Vec<T>, //TODO maybe add later that the distance between each node is stored as well
 }
@@ -208,23 +208,79 @@ impl<T: Display + Clone> ShortestPath<T> {
         }
     }
 
-    /// The source node where this shortest path starts
-    pub fn source(&self) -> Option<&T> {//TODO Add example
+    /// Source node where this shortest path starts.
+    /// 
+    /// # Example
+    /// ```
+    /// # fn main() -> Result<(), ()> {
+    /// use simple_graph_algorithms::{Graph, algorithms::dijkstra};
+    /// 
+    /// let mut graph = Graph::new();
+    /// graph.add_node('a');
+    /// graph.add_node('b');
+    /// graph.add_edge(4, &'a', &'b');
+    /// let spt = dijkstra(&mut graph, &'a')?;
+    /// 
+    /// // Calculate shortest path from a to b using dijkstra's algorithm.
+    /// // It is ok to use .unwrap() here, because we know that the graph contains node b.
+    /// let shortest_path = spt.shortest_path(&'b').unwrap();
+    /// 
+    /// assert_eq!(shortest_path.source(), Some(&'a'));
+    /// # Ok(())}
+    /// ```
+    pub fn source(&self) -> Option<&T> {
         self.path.first().clone()
     }
 
-    /// The target node where this shortest path ends
-    pub fn target(&self) -> Option<&T> {//TODO Add example
+    /// Target node where this shortest path ends.
+    /// 
+    /// # Example
+    /// ```
+    /// # fn main() -> Result<(), ()> {
+    /// use simple_graph_algorithms::{Graph, algorithms::dijkstra};
+    /// 
+    /// let mut graph = Graph::new();
+    /// graph.add_node('a');
+    /// graph.add_node('b');
+    /// graph.add_edge(4, &'a', &'b');
+    /// let spt = dijkstra(&mut graph, &'a')?;
+    /// 
+    /// // Calculate shortest path from a to b using dijkstra's algorithm.
+    /// // It is ok to use .unwrap() here, because we know that the graph contains node b.
+    /// let shortest_path = spt.shortest_path(&'b').unwrap();
+    /// 
+    /// assert_eq!(shortest_path.target(), Some(&'b'));
+    /// # Ok(())}
+    /// ```
+    pub fn target(&self) -> Option<&T> {
         self.path.last().clone()
     }
 
-    /// Path fragments of the shortest path.
+    /// Nodes that form the shortest path.
     /// 
     /// First element is the start node.
     /// Last element is the target node.
     /// 
     /// # Example
-    /// //TODO Add example
+    /// ```
+    /// # fn main() -> Result<(), ()> {
+    /// use simple_graph_algorithms::{Graph, algorithms::dijkstra};
+    /// 
+    /// let mut graph = Graph::new();
+    /// graph.add_node('a');
+    /// graph.add_node('b');
+    /// graph.add_node('c');
+    /// graph.add_edge(4, &'a', &'b');
+    /// graph.add_edge(2, &'b', &'c');
+    /// let spt = dijkstra(&mut graph, &'a')?;
+    /// 
+    /// // Calculate shortest path from a to c using dijkstra's algorithm.
+    /// // It is ok to use .unwrap() here, because we know that the graph contains node c.
+    /// let shortest_path = spt.shortest_path(&'c').unwrap();
+    /// 
+    /// assert_eq!(shortest_path.path(), &vec!['a', 'b', 'c']);
+    /// # Ok(())}
+    /// ```
     pub fn path(&self) -> &Vec<T> {
         &self.path
     }
@@ -233,37 +289,28 @@ impl<T: Display + Clone> ShortestPath<T> {
 
 impl<T: Display + Clone + Debug> Display for ShortestPath<T> {
     
-    /// Returns a string illustrating the shortest path to the target node.
+    /// Formats the shortest path in a way that can be printed easily.
     /// 
-    /// Requires that a pathfinding algorithm has run to fill the shortest paths.
+    /// # Example
+    /// ```
+    /// # fn main() -> Result<(), ()> {
+    /// use simple_graph_algorithms::{Graph, algorithms::dijkstra};
     /// 
-    /// If the `target_node_id` is not contained within the graph, `None` is returned instead of the path.
-    /// //TODO add in example, once pathfinding algorithm has been implemented
+    /// let mut graph = Graph::new();
+    /// graph.add_node('a');
+    /// graph.add_node('b');
+    /// graph.add_node('c');
+    /// graph.add_edge(4, &'a', &'b');
+    /// graph.add_edge(2, &'b', &'c');
+    /// let spt = dijkstra(&mut graph, &'a')?;
     /// 
-//    /// # Example
-//    /// ```
-//    /// use simple_graph_algorithms::{Graph, Node}, algorithms::dijkstra};
-//    /// 
-//    /// // Prepare graph
-//    /// let mut graph: Graph<char> = Graph::new();
-//    /// let node_a_idx = graph.add_node(Node::new('a'));
-//    /// let node_b_idx = graph.add_node(Node::new('b'));
-//    /// let node_c_idx = graph.add_node(Node::new('c'));
-//    /// let node_d_idx = graph.add_node(Node::new('d'));
-//    /// graph.add_edge(3, node_a_idx, node_b_idx);
-//    /// graph.add_edge(4, node_a_idx, node_c_idx);
-//    /// graph.add_edge(3, node_b_idx, node_a_idx);
-//    /// graph.add_edge(2, node_b_idx, node_d_idx);
-//    /// graph.add_edge(9, node_c_idx, node_a_idx);
-//    /// graph.add_edge(1, node_c_idx, node_d_idx);
-//    /// graph.add_edge(3, node_d_idx, node_b_idx);
-//    /// graph.add_edge(7, node_d_idx, node_c_idx);
-//    /// dijkstra(&mut graph, &'a', &'d').unwrap_or(-1);
-//    /// 
-//    /// // Get shortest path
-//    /// let string = graph.node_by_id(&'d').unwrap().borrow_mut().shortest_path();
-//    /// assert_eq!("a -> b -> d", string)
-//    /// ```
+    /// // Calculate shortest path from a to c using dijkstra's algorithm.
+    /// // It is ok to use .unwrap() here, because we know that the graph contains node c.
+    /// let shortest_path = spt.shortest_path(&'c').unwrap();
+    /// 
+    /// assert_eq!(shortest_path.to_string(), "a -> b -> c");
+    /// # Ok(())}
+    /// ```
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         for (i, node_id) in self.path.iter().enumerate() {
             if i == self.path.len()-1 {
