@@ -351,14 +351,16 @@ impl<T: Display + Clone> TryFrom<&Rc<RefCell<Node<T>>>> for ShortestPath<T> {
 }
 
 #[derive(Debug, PartialEq, Eq)]
-/// Errors that can occur when edges are added to a graph.
+/// Errors that can occur when edges are added to the graph.
+/// 
+/// Variants specify what exact node is missing.
 pub enum AddEdgeError {
     /// Indicates that the source node is missing from the graph,
     SourceMissing,
     /// Indicates that the target node is missing form the graph.
     TargetMissing,
     /// Indicates that either node is missing from the graph.
-    EitherMissing,
+    BothMissing,
 }
 
 impl ToString for AddEdgeError {
@@ -366,7 +368,7 @@ impl ToString for AddEdgeError {
         match self {
             AddEdgeError::SourceMissing => String::from("SourceMissing"),
             AddEdgeError::TargetMissing => String::from("TargetMissing"),
-            AddEdgeError::EitherMissing => String::from("EitherMissing"),
+            AddEdgeError::BothMissing => String::from("BothMissing"),
         }
     }
 }

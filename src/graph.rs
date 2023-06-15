@@ -195,7 +195,7 @@ impl<'a, T: Display + Clone + Eq + Hash> Graph<T> {
     /// The `weight` defines "the distance" between the nodes with ids `source_id` and `target_id`.
     /// 
     /// Returns `Ok(())` when the edge was added or an [AddEdgeError](enum.AddEdgeError.html)
-    /// containing the reason why the edge was not added.
+    /// specifing because of which missing node(s) the edge could not be added.
     /// 
     /// # Example
     /// ```
@@ -216,11 +216,11 @@ impl<'a, T: Display + Clone + Eq + Hash> Graph<T> {
     /// assert_eq!(graph.try_add_edge(1, &"a", &"d"), Err(AddEdgeError::TargetMissing));
     /// 
     /// // Errors because nodes "c" and  "d" are missing from the graph
-    /// assert_eq!(graph.try_add_edge(1, &"c", &"d"), Err(AddEdgeError::EitherMissing));
+    /// assert_eq!(graph.try_add_edge(1, &"c", &"d"), Err(AddEdgeError::BothMissing));
     /// ```
-    pub fn try_add_edge(&mut self, weight: i32, source_id: &T, target_id: &T) -> Result<(), AddEdgeError> {//TODO rename variant EitherMissing into BothMissing
+    pub fn try_add_edge(&mut self, weight: i32, source_id: &T, target_id: &T) -> Result<(), AddEdgeError> {
         if !self.nodes.contains_key(source_id) && !self.nodes.contains_key(target_id) {
-            return Err(AddEdgeError::EitherMissing);
+            return Err(AddEdgeError::BothMissing);
         } else if !self.nodes.contains_key(source_id) {
             return Err(AddEdgeError::SourceMissing);
         } else if !self.nodes.contains_key(target_id) {
@@ -269,7 +269,7 @@ impl<'a, T: Display + Clone + Eq + Hash> Graph<T> {
     /// The `weight` defines "the distance" between the nodes with ids `source_id` and `target_id`.
     /// 
     /// Returns `Ok(())` when the edge was added or an [AddEdgeError](enum.AddEdgeError.html)
-    /// containing the reason why the edge was not added.
+    /// specifing because of which missing node(s) the edge could not be added.
     /// 
     /// # Example
     /// ```
@@ -290,11 +290,11 @@ impl<'a, T: Display + Clone + Eq + Hash> Graph<T> {
     /// assert_eq!(graph.try_add_double_edge(1, &"a", &"d"), Err(AddEdgeError::TargetMissing));
     /// 
     /// // Errors because nodes "c" and  "d" are missing from the graph
-    /// assert_eq!(graph.try_add_double_edge(1, &"c", &"d"), Err(AddEdgeError::EitherMissing));
+    /// assert_eq!(graph.try_add_double_edge(1, &"c", &"d"), Err(AddEdgeError::BothMissing));
     /// ```
     pub fn try_add_double_edge(&mut self, weight: i32, source_id: &T, target_id: &T) -> Result<(), AddEdgeError> {
         if !self.nodes.contains_key(source_id) && !self.nodes.contains_key(target_id) {
-            return Err(AddEdgeError::EitherMissing);
+            return Err(AddEdgeError::BothMissing);
         } else if !self.nodes.contains_key(source_id) {
             return Err(AddEdgeError::SourceMissing);
         } else if !self.nodes.contains_key(target_id) {
@@ -605,7 +605,7 @@ mod tests {
         let mut graph = simple_graph();
         assert_eq!(graph.try_add_edge(1, &"c", &"b"), Err(crate::AddEdgeError::SourceMissing));
         assert_eq!(graph.try_add_edge(1, &"b", &"d"), Err(crate::AddEdgeError::TargetMissing));
-        assert_eq!(graph.try_add_edge(1, &"c", &"d"), Err(crate::AddEdgeError::EitherMissing));
+        assert_eq!(graph.try_add_edge(1, &"c", &"d"), Err(crate::AddEdgeError::BothMissing));
     }
 
     #[test]
@@ -613,7 +613,7 @@ mod tests {
         let mut graph = simple_graph();
         assert_eq!(graph.try_add_double_edge(1, &"c", &"b"), Err(crate::AddEdgeError::SourceMissing));
         assert_eq!(graph.try_add_double_edge(1, &"b", &"d"), Err(crate::AddEdgeError::TargetMissing));
-        assert_eq!(graph.try_add_double_edge(1, &"c", &"d"), Err(crate::AddEdgeError::EitherMissing));
+        assert_eq!(graph.try_add_double_edge(1, &"c", &"d"), Err(crate::AddEdgeError::BothMissing));
     }
 
     #[test]
