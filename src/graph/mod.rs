@@ -2,6 +2,10 @@ use std::{fmt::{Display, Debug}, rc::Rc, cell::RefCell, hash::Hash, collections:
 
 use crate::{Node, Edge, Graph, AddEdgeError, ShortestPath};
 
+/// Graph parsing from a list of instructions
+#[cfg(feature = "from_instruction")]
+mod instruction;
+
 // Node implementations
 
 impl<T: Display + Eq + Clone> Node<T> {
@@ -418,7 +422,7 @@ impl<'a, T: Display + Clone + Eq + Hash> Graph<T> {
     /// let mut graph = Graph::<String>::from_instructions(&lines);
     /// //assert_eq!(1, dijkstra(&mut graph, &String::from("a"), &String::from("d")).unwrap_or(-1));
     /// ```
-    pub fn from_instructions(instructions: &Vec<String>) -> Graph<String> {
+    pub fn from_instructions(instructions: &Vec<String>) -> Graph<String> {//TODO Remove function from here when from_instructions feature works
         // Stores all node labels of nodes that should be added to the graph
         let mut node_labels = Vec::new();
         // Stores all edges that should be added to the graph, (WEIGHT, LABEL1, LABEL2, double)
