@@ -128,28 +128,26 @@ impl<T: Display + Clone + Eq + Hash> ShortestPathTree<T> {
         }
     }
 
-    /// Returns the shortest path to the target node.
+    /// Returns the shortest path to the node with id `target_id`.
     /// 
-    /// If the `target_node_id` is not contained within the shortest path tree,
-    /// `None` is returned.
+    /// If the `target_id` is not contained within the shortest path tree,
+    /// `None` is returned instead of the shortest path.
     /// 
     /// For further information and for what can be done with the shortest
     /// path see [ShortestPath](struct.ShortestPath.html).
-    pub fn shortest_path(&self, target_node_id: &T) -> Option<&ShortestPath<T>> {
-        match self.results.get(target_node_id)? {
+    pub fn shortest_path(&self, target_id: &T) -> Option<&ShortestPath<T>> {
+        match self.results.get(target_id)? {
             Some(res) => Some(&res.1),
             None => None
         }
     }
 
-    /// Returns the shortest distance to the target node.
+    /// Returns the shortest distance to the node with id `target_id`.
     /// 
-    /// If the `target_node_id` is not contained within the shortest path tree, 
+    /// If the `target_id` is not contained within the shortest path tree, 
     /// `None` is returned instead of the distance.
     /// 
     /// # Example
-    /// 
-    /// ## Use pathfinding algorithm that does not return a distance
     /// ```
     /// use simple_graph_algorithms::{Graph, algorithms::dijkstra};
     /// 
@@ -169,17 +167,18 @@ impl<T: Display + Clone + Eq + Hash> ShortestPathTree<T> {
     /// # Ok(())
     /// # }
     /// ```
-    pub fn shortest_distance(&self, target_node_id: &T) -> Option<i32> {
-        match self.results.get(&target_node_id)? {
+    pub fn shortest_distance(&self, target_id: &T) -> Option<i32> {
+        match self.results.get(&target_id)? {
             Some(res) => Some(res.0),
             None => None,
         }
     }
 
-    /// Creates a shortest path tree from a graph and a source node. A pathfinding algorithm
-    /// should have run on the graph before the shortest path tree is constructed.
-    fn from_graph(graph: &Graph<T>, source: &T) -> Self {
-        let mut spt = ShortestPathTree::new(source.clone());
+    /// Creates a shortest path tree from a graph and the id of a source node. A pathfinding algorithm
+    /// should have run on the graph before the shortest path tree is constructed, to make sure that the
+    /// resulting shortest path tree is not empty.
+    fn from_graph(graph: &Graph<T>, source_id: &T) -> Self {
+        let mut spt = ShortestPathTree::new(source_id.clone());
         for (id, node) in &graph.nodes {
             if let Ok(path) = ShortestPath::try_from(node) {
                 spt.add_result(id.clone(), Some(node.borrow().distance), Some(path));
@@ -208,7 +207,7 @@ impl<T: Display + Clone> ShortestPath<T> {
         }
     }
 
-    /// Source node where this shortest path starts.
+    /// Id of source node where this shortest path starts.
     /// 
     /// # Example
     /// ```
@@ -232,7 +231,7 @@ impl<T: Display + Clone> ShortestPath<T> {
         self.path.first().clone()
     }
 
-    /// Target node where this shortest path ends.
+    /// Id of target node where this shortest path ends.
     /// 
     /// # Example
     /// ```
@@ -256,10 +255,10 @@ impl<T: Display + Clone> ShortestPath<T> {
         self.path.last().clone()
     }
 
-    /// Nodes that form the shortest path.
+    /// Id's of nodes that form the shortest path.
     /// 
-    /// First element is the start node.
-    /// Last element is the target node.
+    /// First element is the id of the start node.
+    /// Last element is the id of the target node.
     /// 
     /// # Example
     /// ```

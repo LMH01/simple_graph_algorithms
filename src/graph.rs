@@ -6,7 +6,7 @@ use crate::{Node, Edge, Graph, AddEdgeError, ShortestPath};
 
 impl<T: Display + Eq + Clone> Node<T> {
     
-    /// Creates a new node with `id`.
+    /// Creates a new node with id `id`.
     /// 
     /// The id is used to compare this node with other nodes and to address this node when searching for a shortest way.
     fn new(id: T) -> Self {
@@ -80,11 +80,13 @@ impl<'a, T: Display + Clone + Eq + Hash> Graph<T> {
         }
     }
 
-    /// Adds a new node to the graph.
+    /// Adds a new node with id `id` to the graph.
     /// 
-    /// The `id` is the unique identifier of this node, it is also used to specify the start node when a path finding algorithm is run.
+    /// The `id` is the unique identifier of this node,
+    /// it is used to adddress this node in all other functions.
     /// 
-    /// Return value indicates if the node was added to the graph.
+    /// Return value indicates if the node was added to
+    /// the graph or if a node with this id already exists.
     /// 
     /// # Example
     /// ```
@@ -139,7 +141,7 @@ impl<'a, T: Display + Clone + Eq + Hash> Graph<T> {
         duplicates
     }
 
-    /// Checks if node with `id` is contained inside this graph.
+    /// Checks if node with id `id` is contained inside this graph.
     /// 
     /// # Example
     /// ```
@@ -159,7 +161,7 @@ impl<'a, T: Display + Clone + Eq + Hash> Graph<T> {
     /// Adds a new edge to the graph that connects two nodes in a single direction from source to target.
     /// For that to succeed both nodes are required to be contained within the graph.
     /// 
-    /// The `weight` defines "the distance" between the `source` and `target` nodes.
+    /// The `weight` defines "the distance" between the nodes with ids `source_id` and `target_id`.
     /// 
     /// Returns `true` if the edge was added, if `false` is returned either node is missing in the graph.
     /// 
@@ -178,19 +180,19 @@ impl<'a, T: Display + Clone + Eq + Hash> Graph<T> {
     /// assert_eq!(graph.add_edge(1, &"a", &"b"), true);
     /// assert_eq!(graph.add_edge(1, &"c", &"d"), false);
     /// ```
-    pub fn add_edge(&mut self, weight: i32, source: &T, target: &T) -> bool {
-        if !self.nodes.contains_key(source) && !self.nodes.contains_key(target) {
+    pub fn add_edge(&mut self, weight: i32, source_id: &T, target_id: &T) -> bool {
+        if !self.nodes.contains_key(source_id) && !self.nodes.contains_key(target_id) {
             return false;
         }
-        let parent = Rc::clone(&self.nodes.get(source).unwrap());
-        let target = Rc::clone(&self.nodes.get(target).unwrap());
-        self.nodes.get(source).unwrap().borrow_mut().edges.push(Edge::new(weight, parent, target));
+        let parent = Rc::clone(&self.nodes.get(source_id).unwrap());
+        let target = Rc::clone(&self.nodes.get(target_id).unwrap());
+        self.nodes.get(source_id).unwrap().borrow_mut().edges.push(Edge::new(weight, parent, target));
         return true;
     }
 
     /// Tries to add a new edge to the graph that connects two nodes in a single direction from source to target.
     /// 
-    /// The `weight` defines "the distance" between the `source` and `target` nodes.
+    /// The `weight` defines "the distance" between the nodes with ids `source_id` and `target_id`.
     /// 
     /// Returns `Ok(())` when the edge was added or an [AddEdgeError](enum.AddEdgeError.html)
     /// containing the reason why the edge was not added.
@@ -216,24 +218,24 @@ impl<'a, T: Display + Clone + Eq + Hash> Graph<T> {
     /// // Errors because nodes "c" and  "d" are missing from the graph
     /// assert_eq!(graph.try_add_edge(1, &"c", &"d"), Err(AddEdgeError::EitherMissing));
     /// ```
-    pub fn try_add_edge(&mut self, weight: i32, source: &T, target: &T) -> Result<(), AddEdgeError> {
-        if !self.nodes.contains_key(source) && !self.nodes.contains_key(target) {
+    pub fn try_add_edge(&mut self, weight: i32, source_id: &T, target_id: &T) -> Result<(), AddEdgeError> {//TODO rename variant EitherMissing into BothMissing
+        if !self.nodes.contains_key(source_id) && !self.nodes.contains_key(target_id) {
             return Err(AddEdgeError::EitherMissing);
-        } else if !self.nodes.contains_key(source) {
+        } else if !self.nodes.contains_key(source_id) {
             return Err(AddEdgeError::SourceMissing);
-        } else if !self.nodes.contains_key(target) {
+        } else if !self.nodes.contains_key(target_id) {
             return Err(AddEdgeError::TargetMissing);
         }
-        let parent = Rc::clone(&self.nodes.get(source).unwrap());
-        let target = Rc::clone(&self.nodes.get(target).unwrap());
-        self.nodes.get(source).unwrap().borrow_mut().edges.push(Edge::new(weight, parent, target));
+        let parent = Rc::clone(&self.nodes.get(source_id).unwrap());
+        let target = Rc::clone(&self.nodes.get(target_id).unwrap());
+        self.nodes.get(source_id).unwrap().borrow_mut().edges.push(Edge::new(weight, parent, target));
         Ok(())
     }
 
     /// Adds a new edge to the graph that connects two nodes in a both directions.
     /// For that to succeed both nodes are required to be contained within the graph.
     /// 
-    /// The `weight` defines "the distance" between the `source` and `target` nodes.
+    /// The `weight` defines "the distance" between the nodes with ids `source_id` and `target_id`.
     /// 
     /// Returns `true` if the edge was added, if `false` is returned either node is missing in the graph.
     /// 
@@ -251,20 +253,20 @@ impl<'a, T: Display + Clone + Eq + Hash> Graph<T> {
     /// assert_eq!(graph.add_double_edge(1, &"a", &"b"), true);
     /// assert_eq!(graph.add_double_edge(1, &"c", &"d"), false);
     /// ```
-    pub fn add_double_edge(&mut self, weight: i32, source: &T, target: &T) -> bool {
-        if !self.nodes.contains_key(source) && !self.nodes.contains_key(target) {
+    pub fn add_double_edge(&mut self, weight: i32, source_id: &T, target: &T) -> bool {
+        if !self.nodes.contains_key(source_id) && !self.nodes.contains_key(target) {
             return false;
         }
-        let parent = Rc::clone(&self.nodes.get(source).unwrap());
+        let parent = Rc::clone(&self.nodes.get(source_id).unwrap());
         let destination = Rc::clone(&self.nodes.get(target).unwrap());
-        self.nodes.get(source).unwrap().borrow_mut().edges.push(Edge::new(weight, parent.clone(), destination.clone()));
+        self.nodes.get(source_id).unwrap().borrow_mut().edges.push(Edge::new(weight, parent.clone(), destination.clone()));
         self.nodes.get(target).unwrap().borrow_mut().edges.push(Edge::new(weight, destination, parent));
         true
     }
 
     /// Tries to add a new edge to the graph that connects two nodes in a single direction from source to target.
     /// 
-    /// The `weight` defines "the distance" between the `source` and `target` nodes.
+    /// The `weight` defines "the distance" between the nodes with ids `source_id` and `target_id`.
     /// 
     /// Returns `Ok(())` when the edge was added or an [AddEdgeError](enum.AddEdgeError.html)
     /// containing the reason why the edge was not added.
@@ -290,22 +292,22 @@ impl<'a, T: Display + Clone + Eq + Hash> Graph<T> {
     /// // Errors because nodes "c" and  "d" are missing from the graph
     /// assert_eq!(graph.try_add_double_edge(1, &"c", &"d"), Err(AddEdgeError::EitherMissing));
     /// ```
-    pub fn try_add_double_edge(&mut self, weight: i32, source: &T, target: &T) -> Result<(), AddEdgeError> {
-        if !self.nodes.contains_key(source) && !self.nodes.contains_key(target) {
+    pub fn try_add_double_edge(&mut self, weight: i32, source_id: &T, target_id: &T) -> Result<(), AddEdgeError> {
+        if !self.nodes.contains_key(source_id) && !self.nodes.contains_key(target_id) {
             return Err(AddEdgeError::EitherMissing);
-        } else if !self.nodes.contains_key(source) {
+        } else if !self.nodes.contains_key(source_id) {
             return Err(AddEdgeError::SourceMissing);
-        } else if !self.nodes.contains_key(target) {
+        } else if !self.nodes.contains_key(target_id) {
             return Err(AddEdgeError::TargetMissing);
         }
-        let parent = Rc::clone(&self.nodes.get(source).unwrap());
-        let destination = Rc::clone(&self.nodes.get(target).unwrap());
-        self.nodes.get(source).unwrap().borrow_mut().edges.push(Edge::new(weight, parent.clone(), destination.clone()));
-        self.nodes.get(target).unwrap().borrow_mut().edges.push(Edge::new(weight, destination, parent));
+        let parent = Rc::clone(&self.nodes.get(source_id).unwrap());
+        let destination = Rc::clone(&self.nodes.get(target_id).unwrap());
+        self.nodes.get(source_id).unwrap().borrow_mut().edges.push(Edge::new(weight, parent.clone(), destination.clone()));
+        self.nodes.get(target_id).unwrap().borrow_mut().edges.push(Edge::new(weight, destination, parent));
         Ok(())
     }
 
-    /// Checks if the graph contains an edge from node with `source_id` to node with `target_id`.
+    /// Checks if the graph contains an edge from node with id `source_id` to node with id `target_id`.
     /// 
     /// # Example
     /// ```
