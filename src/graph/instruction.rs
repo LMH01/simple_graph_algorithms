@@ -1,114 +1,98 @@
-use std::fmt::Display;
+use std::{fmt::Display, hash::Hash};
 
+use crate::Graph;
+
+#[cfg(feature = "from_instruction")]
 enum Instruction<T: Display + Clone> {
     AddNode(T),
     AddEdge(i32, T, T),
     AddDoubleEdge(i32, T, T),
 }
 
+#[cfg(feature = "from_instruction")]
 struct Instructions<T: Display + Clone> {
     instructions: Vec<Instruction<T>>,
 }
 
-impl<T: Display + Clone> From<&Vec<String>> for Instructions<T> {
-    /// Constructs a graph from a list of instructions. This is meant to be used by reading the instructions form a file.
-    /// 
-    /// The order in which the instructions are stored in the vector does not matter.
-    /// 
-    /// # Instructions
-    /// 
-    /// ## Nodes
-    /// 
-    /// ```txt
-    /// node: LABEL1
-    /// ```
-    /// This declares a new node labeled `LABEL1`
-    /// 
-    /// ## Edge
-    /// 
-    /// ```txt
-    /// edge: LABEL1 WEIGHT LABEL2
-    /// ```
-    /// This adds an edge from `LABEL1` to `LABEL2` with `WEIGHT`
-    /// 
-    /// ```txt
-    /// double_edge: LABEL1 WEIGHT LABEL2
-    /// ```
-    /// This adds a double edge between `LABEL1` and `LABEL2` with `WEIGHT`
-    /// 
-    /// # Example
-    /// 
-    /// ```rust
-    /// //use lmh01_pathfinding::algorithms::dijkstra;
-    /// use simple_graph_algorithms::Graph;
-    /// 
-    /// // This lines vector should ideally constructed by parsing a file, below insertions are just for demonstration.
-    /// let mut lines = Vec::new();
-    /// lines.push(String::from("node: a"));
-    /// lines.push(String::from("node: b"));
-    /// lines.push(String::from("node: c"));
-    /// lines.push(String::from("node: d"));
-    /// lines.push(String::from("edge: a 7 b"));
-    /// lines.push(String::from("edge: a 4 c"));
-    /// lines.push(String::from("edge: b 2 d"));
-    /// lines.push(String::from("edge: c 9 d"));
-    /// lines.push(String::from("edge: c 2 b"));
-    /// lines.push(String::from("double_edge: a 1 d"));
-    /// let mut graph = Graph::<String>::from_instructions(&lines);
-    /// //assert_eq!(1, dijkstra(&mut graph, &String::from("a"), &String::from("d")).unwrap_or(-1));
-    /// ```
-    pub fn from(value: &Vec<String>) -> Instructions<T> {//TODO Remove function from here when from_instructions feature works
-        // Stores all node labels of nodes that should be added to the graph
-        let mut node_labels = Vec::new();
-        // Stores all edges that should be added to the graph, (WEIGHT, LABEL1, LABEL2, double)
-        let mut edges: Vec<(i32, String, String, bool)> = Vec::new();
+#[cfg(feature = "from_instruction")]
+impl<T: Display + Clone + From<String>> TryFrom<&Vec<String>> for Instructions<T> {
+    type Error = String;
 
-        let mut Instructions = Vec::new();
+    /// Tries to parse each line of the string as instruction
+    fn try_from(value: &Vec<String>) -> Result<Self, Self::Error> {//TODO add doc, example + test
+        let mut instructions = Vec::new();
 
         // Parse lines
         for line in value {
             let split: Vec<&str> = line.split(' ').collect();
             match split[0].to_lowercase().as_str() {
                 "node:" => {
-                    Instructions.push(Instruction::AddNode(String::from(split[1])));
+                    instructions.push(Instruction::AddNode(T::from(split[1].to_string())));
                 },
                 "edge:" => {
-                    Instructions.push(Instruction::AddEdge(split[2].parse()::<i32>, String::from(split[1]), String::From(split[3])));
-                    //TODO decide if I want to change impl to TryFrom and return with err or if i want to cach it and just not parse ddefective lines
-                    // I should do an implementation for TryFrom
-                    edges.push((split[2].parse::<i32>().expect("Unable to parse edge weight!"), String::from(split[1]), String::from(split[3]), false));
+                    match split[2].parse::<i32>() {
+                        Ok(weight) => {
+                            instructions.push(Instruction::AddEdge(weight, T::from(split[1].to_string()), T::from(split[3].to_string())));
+                        },
+                        Err(_) => return Err(String::from(split[2])),
+                    };
                 },
                 "double_edge:" => {
-                    edges.push((split[2].parse::<i32>().expect("Unable to parse edge weight!"), String::from(split[1]), String::from(split[3]), true));
+                    if let Ok(weight) = split[2].parse::<i32>() {
+                        instructions.push(Instruction::AddDoubleEdge(weight, T::from(split[1].to_string()), T::from(split[3].to_string())));
+                    }
                 },
                 _ => (),
             }
         }
+        Ok(Instructions { instructions, })
+    }
+}
 
+#[cfg(feature = "from_instruction")]
+impl<T: Display + Clone + Eq + Hash> From<Instructions<T>> for Graph<T> {
+    /// Constructs a graph from the list of instructions
+    fn from(value: Instructions<T>) -> Self {//TODO Add doc, example + test
         let mut graph = Graph::new();
-
-        // Add nodes to graph
-        for label in node_labels {
-            graph.add_node(label.clone());
+        for instruction in value.instructions {
+            match instruction {
+                Instruction::AddNode(id) => graph.add_node(id),
+                Instruction::AddEdge(weight, source, target) => graph.add_edge(weight, &source, &target),
+                Instruction::AddDoubleEdge(weight, source, target) => graph.add_double_edge(weight, &source, &target),
+            };
         }
-        // Add edges to graph
-        for edge in edges {
-            if edge.3 {
-                graph.add_double_edge(edge.0, &edge.1, &edge.2);
-            } else {
-                graph.add_edge(edge.0, &edge.1, &edge.2);
-            }
-        }
-
         graph
     }
 }
 
-impl<T: Display + Clone> TryFrom<String> for Instructions<T> {
-    type Error = InstructionParseError;
+#[cfg(test)]
+mod tests {
+    use crate::{Graph, algorithms::bellman_ford};
 
-    /// Tries to parse each line of the string as instruction
-    fn try_from(value: String) -> Result<Self, Self::Error> {
-        todo!()
+    use super::Instructions;
+
+
+    #[test]
+    fn graph_from_instructions_test() {
+        let mut instructions = Vec::new();
+        instructions.push(String::from("node: a"));
+        instructions.push(String::from("node: b"));
+        instructions.push(String::from("node: c"));
+        instructions.push(String::from("node: d"));
+        instructions.push(String::from("edge: a 3 b"));
+        instructions.push(String::from("edge: a 4 c"));
+        instructions.push(String::from("double_edge: b 2 d"));
+        instructions.push(String::from("edge: c 2 a"));
+        instructions.push(String::from("edge: c 5 d"));
+        instructions.push(String::from("edge: b -1 a"));
+        let instructions: Result<Instructions<String>, String> = Instructions::try_from(&instructions);
+        assert!(instructions.is_ok());
+        let mut graph = Graph::from(instructions.unwrap());
+        println!("{graph}");
+        let spt = bellman_ford(&mut graph, &String::from("a"));
+        assert!(spt.is_ok());
+        println!("{}", spt.as_ref().unwrap().shortest_path(&String::from("d")).unwrap());
+        assert_eq!(spt.unwrap().shortest_distance(&String::from("d")), Some(5));        
     }
+
 }
