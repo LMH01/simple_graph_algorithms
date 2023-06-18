@@ -43,7 +43,8 @@
 //! ```
 
 use std::{fmt::{Display, Debug}, rc::Rc, cell::RefCell, collections::HashMap, hash::Hash};
-
+// TODO update graph print to properly print negative edge weights
+// TODO add available from_instruction feature to main doc page and explain briefly what it does
 /// Contains implementations for the graph to work.
 mod graph;
 /// Contains all algorithms that are implemented in this crate.

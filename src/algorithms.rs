@@ -176,18 +176,20 @@ pub fn bellman_ford<T: Display + Eq + Clone + Hash>(graph: &mut Graph<T>, source
             }
 
             for edge in &node_ref.edges {
-                let target_node = edge.target.clone();
+                let target_node = Rc::clone(&edge.target);
+                let mut target_node_ref = target_node.borrow_mut();
                 let new_distance = node_ref.distance + edge.weight;
 
-                if new_distance < target_node.borrow().distance {
-                    target_node.borrow_mut().distance = new_distance;
+                if new_distance < target_node_ref.distance {
+                    target_node_ref.distance = new_distance;
                     let mut shortest_path = node_ref.shortest_path.clone();
-                    shortest_path.push(node.clone());
-                    target_node.borrow_mut().shortest_path = shortest_path;
+                    shortest_path.push(Rc::clone(&node));
+                    target_node_ref.shortest_path = shortest_path;
                 }
             }
         }
     }
+    //TODO Add in check that detects negative circles and return Err() when found, update docs accordingly and add in a test that checks that
 
     Ok(ShortestPathTree::from_graph(&graph, &source_node_id))
 }
