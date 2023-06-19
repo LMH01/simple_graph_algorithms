@@ -64,11 +64,11 @@ use crate::{Graph, Node, ShortestPathTree};
 /// # Ok(())
 /// # }
 /// ```
-pub fn dijkstra<T: Display + Clone + Eq + Hash>(graph: &mut Graph<T>, source_node_id: &T) -> Result<ShortestPathTree<T>, AlgorithmError> {
+pub fn dijkstra<T: Display + Clone + Eq + Hash>(graph: &mut Graph<T>, source_node_id: &T) -> Result<ShortestPathTree<T>, RunAlgorithmError> {
     graph.reset_nodes();
     let source_node = match graph.nodes.get(source_node_id) {
         Some(node) => node,
-        None => return Err(AlgorithmError::SourceNodeMissing),
+        None => return Err(RunAlgorithmError::SourceNodeMissing),
     };
     source_node.borrow_mut().distance = 0;
     let mut open_nodes: BinaryHeap<Rc<RefCell<Node<T>>>> = BinaryHeap::new();
@@ -185,12 +185,12 @@ fn calc_min_distance<T: Display + Eq + Clone>(node: &Rc<RefCell<Node<T>>>, weigh
 /// # Ok(())
 /// # }
 /// ```
-pub fn bellman_ford<T: Display + Eq + Clone + Hash>(graph: &mut Graph<T>, source_node_id: &T) -> Result<ShortestPathTree<T>, AlgorithmError> {
+pub fn bellman_ford<T: Display + Eq + Clone + Hash>(graph: &mut Graph<T>, source_node_id: &T) -> Result<ShortestPathTree<T>, RunAlgorithmError> {
     graph.reset_nodes();
 
     let source_node = match graph.nodes.get(source_node_id) {
         Some(node) => node,
-        None => return Err(AlgorithmError::SourceNodeMissing),
+        None => return Err(RunAlgorithmError::SourceNodeMissing),
     };
     source_node.borrow_mut().distance = 0;
 
@@ -229,7 +229,7 @@ pub fn bellman_ford<T: Display + Eq + Clone + Hash>(graph: &mut Graph<T>, source
 
             let new_distance = node_ref.distance + edge.weight;
             if new_distance < target_node_ref.distance {
-                return Err(AlgorithmError::NegativeCircleDetected);
+                return Err(RunAlgorithmError::NegativeCircleDetected);
             }
         }
     }
@@ -239,7 +239,7 @@ pub fn bellman_ford<T: Display + Eq + Clone + Hash>(graph: &mut Graph<T>, source
 
 /// Errors that can occur when algorithms are run.
 #[derive(Debug, PartialEq)]
-pub enum AlgorithmError {
+pub enum RunAlgorithmError {
     /// Indicates that the source node is not contained within the graph.
     SourceNodeMissing,
     /// Indicates that the graph contains a negative circle, which causes the algorithm to not work properly.
@@ -248,7 +248,7 @@ pub enum AlgorithmError {
 
 #[cfg(test)]
 mod tests {
-    use crate::{Graph, algorithms::{dijkstra, bellman_ford, AlgorithmError}, graph_1, graph_2};
+    use crate::{Graph, algorithms::{dijkstra, bellman_ford, RunAlgorithmError}, graph_1, graph_2};
 
     #[test]
     fn dijkstra_test_1() {
@@ -326,7 +326,7 @@ mod tests {
         let mut graph = graph_with_negative_edges();
         graph.add_double_edge(-10, &'a', &'d');
         let spt = bellman_ford(&mut graph, &'a');
-        assert_eq!(spt, Err(AlgorithmError::NegativeCircleDetected));
+        assert_eq!(spt, Err(RunAlgorithmError::NegativeCircleDetected));
     }
 
     #[test]
@@ -335,7 +335,7 @@ mod tests {
         graph.add_double_edge(-10, &"Oslo", &"London");
         graph.add_double_edge(-10, &"New York", &"London");
         let spt = bellman_ford(&mut graph, &"Berlin");
-        assert_eq!(spt, Err(AlgorithmError::NegativeCircleDetected));
+        assert_eq!(spt, Err(RunAlgorithmError::NegativeCircleDetected));
     }
 
 }
