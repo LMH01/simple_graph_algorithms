@@ -57,8 +57,8 @@ pub mod algorithms;
 pub mod instruction;
 
 /// A node inside the graph
-#[derive(Debug, Clone, Eq)]
-struct Node<T: Display> {
+#[derive(Clone, Eq, Debug)]
+struct Node<T: Display + Eq> {
     /// Identifier of this node
     id: T,
     /// Edges of this node
@@ -70,8 +70,8 @@ struct Node<T: Display> {
 }
 
 // An edge between two nodes inside a graph
-#[derive(Debug, Clone, Eq)]
-struct Edge<T: Display> {
+#[derive(Clone, Eq, Ord, PartialOrd, Debug)]
+struct Edge<T: Display + Eq> {
     /// The "cost" of moving along this edge
     weight: i32,
     /// The parent of this edge
@@ -81,8 +81,8 @@ struct Edge<T: Display> {
 }
 
 /// Graph data structure to organize nodes that are connected to each other with edges.
-#[derive(Debug)]
-pub struct Graph<T: Display> {
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct Graph<T: Display + Eq + Hash> {
     /// All nodes contained in this graph
     //nodes: Vec<Rc<RefCell<Node<T>>>>,
 
@@ -90,7 +90,21 @@ pub struct Graph<T: Display> {
     nodes: HashMap<T, Rc<RefCell<Node<T>>>>,
 }
 
-impl<T: Display> Graph<T> {
+impl<T: Display + Eq + Hash + Clone> PartialOrd for Graph<T> {
+    /// Compares the size of this graph with the size of another graph.
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        self.size().partial_cmp(&other.size())
+    }
+}
+
+impl<T: Display + Eq + Hash + Clone> Ord for Graph<T> {
+    /// Compares the size of this graph with the size of another graph.
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+        self.size().cmp(&other.size())
+    }
+}
+
+impl<T: Display + Eq + Hash> Graph<T> {
 
     /// Resets the distance of each node in the graph back to `i32::MAX` and resets the shortest path string.
     /// 
@@ -335,7 +349,7 @@ impl<T: Display + Clone + Debug> Display for ShortestPath<T> {
 }
 
 #[doc(hidden)]
-impl<T: Display + Clone> TryFrom<&Rc<RefCell<Node<T>>>> for ShortestPath<T> {
+impl<T: Display + Clone + Eq> TryFrom<&Rc<RefCell<Node<T>>>> for ShortestPath<T> {
     type Error = &'static str;
 
     /// Tries to read the shortest path from the node.

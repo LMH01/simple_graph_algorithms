@@ -380,7 +380,7 @@ impl<T: Display + Clone + Eq + Hash> Default for Graph<T> {
     }
 }
 
-impl<T: Display> Display for Graph<T> {
+impl<T: Display + Eq + Hash> Display for Graph<T> {
     /// Formats the graph to show all edges between nodes
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let mut graph = String::new();

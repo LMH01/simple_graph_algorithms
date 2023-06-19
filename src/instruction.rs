@@ -40,7 +40,7 @@ use std::{fmt::Display, hash::Hash};
 use crate::Graph;
 
 #[cfg(feature = "from_instruction")]
-#[derive(Debug, PartialEq)]
+#[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
 enum Instruction<T: Display + Clone> {
     AddNode(T),
     AddEdge(i32, T, T),
@@ -49,7 +49,7 @@ enum Instruction<T: Display + Clone> {
 
 /// A list of instructions used to construct a graph.
 #[cfg(feature = "from_instruction")]
-#[derive(Debug, PartialEq)]
+#[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
 pub struct Instructions<T: Display + Clone> {
     instructions: Vec<Instruction<T>>,
 }

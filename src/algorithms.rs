@@ -238,7 +238,7 @@ pub fn bellman_ford<T: Display + Eq + Clone + Hash>(graph: &mut Graph<T>, source
 }
 
 /// Errors that can occur when algorithms are run.
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, PartialOrd, Ord, Eq, Clone, Copy, Hash)]
 pub enum RunAlgorithmError {
     /// Indicates that the source node is not contained within the graph.
     SourceNodeMissing,
