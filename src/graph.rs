@@ -476,7 +476,11 @@ impl<T: Display> Display for Graph<T> {
                 graph.push_str(&format!("{:13} | {:8} | ", id, ""));
             }
             for edge in &node.borrow().edges {
-                graph.push_str(&format!("(--{}-> {})", edge.weight, edge.target.borrow().id));
+                if edge.weight < 0 {
+                    graph.push_str(&format!("(--({})-> {})", edge.weight, edge.target.borrow().id));
+                } else {
+                    graph.push_str(&format!("(--({})-> {})", edge.weight, edge.target.borrow().id));
+                }
             }
             graph.push('\n');
         }
