@@ -49,7 +49,6 @@
 
 use std::{fmt::{Display, Debug}, rc::Rc, cell::RefCell, collections::HashMap, hash::Hash};
 // TODO update graph print to properly print negative edge weights
-// TODO add available from_instruction feature to main doc page and explain briefly what it does
 // TODO Use Aquamarine crate to create mermaid diagrams to visualize the graphs on which the algorithms are run
 /// Contains implementations for the graph to work.
 pub mod graph;
