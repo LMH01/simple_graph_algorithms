@@ -2,7 +2,7 @@
 name = "simple_graph_algorithms"
 version = "0.1.0"
 edition = "2021"
-authors = "Louis H."
+authors = ["Louis H."]
 description  = "A library with the goal of making running graph algorithms as easy as possible."
 license = "MIT"
 repository = "https://github.com/LMH01/simple_graph_algorithms"
