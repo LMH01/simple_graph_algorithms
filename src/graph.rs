@@ -2,10 +2,6 @@ use std::{fmt::{Display, Debug}, rc::Rc, cell::RefCell, hash::Hash, collections:
 
 use crate::{Node, Edge, Graph, AddEdgeError, ShortestPath};
 
-/// Graph parsing from a list of instructions
-#[cfg(feature = "from_instruction")]
-mod instruction;
-
 // Node implementations
 
 impl<T: Display + Eq + Clone> Node<T> {

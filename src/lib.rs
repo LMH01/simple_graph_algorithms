@@ -41,15 +41,23 @@
 //!     Ok(())
 //! }
 //! ```
+//! # Features
+//! 
+//! | Feature | Description |
+//! | - | - |
+//! | from_instruction | Enables functionality that allows graphs to be parsed from a list of instructions. |
 
 use std::{fmt::{Display, Debug}, rc::Rc, cell::RefCell, collections::HashMap, hash::Hash};
 // TODO update graph print to properly print negative edge weights
 // TODO add available from_instruction feature to main doc page and explain briefly what it does
 // TODO Use Aquamarine crate to create mermaid diagrams to visualize the graphs on which the algorithms are run
 /// Contains implementations for the graph to work.
-mod graph;
+pub mod graph;
 /// Contains all algorithms that are implemented in this crate.
 pub mod algorithms;
+/// Graph parsing from a list of instructions.
+#[cfg(feature = "from_instruction")]
+pub mod instruction;
 
 /// A node inside the graph
 #[derive(Debug, Clone, Eq)]
