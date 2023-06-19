@@ -46,8 +46,13 @@
 //! | Feature | Description |
 //! | - | - |
 //! | from_instruction | Enables functionality that allows graphs to be parsed from a list of instructions. |
+//! | serde | Serde serialization and deserialization support for some objects. |
 
 use std::{fmt::{Display, Debug}, rc::Rc, cell::RefCell, collections::HashMap, hash::Hash};
+
+#[cfg(feature = "serde")]
+use serde::{Serialize, Deserialize};
+
 /// Contains implementations for the graph to work.
 mod graph;
 /// Contains all algorithms that are implemented in this crate.
@@ -120,6 +125,7 @@ impl<T: Display + Eq + Hash> Graph<T> {
 /// Structure to store the shortest path and distance from one node 
 /// to other nodes after a pathfinding algorithm has been run on a graph.
 #[derive(Eq, PartialEq, Debug)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct ShortestPathTree<T: Display + Clone + Hash + Eq> {
     source: T,
     results: HashMap<T, Option<(i32, ShortestPath<T>)>>,
@@ -213,6 +219,7 @@ impl<T: Display + Clone + Eq + Hash> ShortestPathTree<T> {
 
 /// The shortest path from one node to another.
 #[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct ShortestPath<T: Display + Clone> {// Add documentation
     /// Contains a list of node ids, first entry is the start node, last entry is the target node.
     path: Vec<T>, //TODO maybe add later that the distance between each node is stored as well
@@ -374,10 +381,11 @@ impl<T: Display + Clone + Eq> TryFrom<&Rc<RefCell<Node<T>>>> for ShortestPath<T>
     }
 }
 
-#[derive(Clone, Eq, PartialEq, PartialOrd, Ord, Hash, Debug)]
 /// Errors that can occur when edges are added to the graph.
 /// 
 /// Variants specify what exact node is missing.
+#[derive(Clone, Eq, PartialEq, PartialOrd, Ord, Hash, Debug)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub enum AddEdgeError {
     /// Indicates that the source node is missing from the graph,
     SourceMissing,

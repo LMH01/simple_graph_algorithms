@@ -37,10 +37,14 @@
 //! ```
 use std::{fmt::Display, hash::Hash};
 
+#[cfg(feature = "serde")]
+use serde::{Serialize, Deserialize};
+
 use crate::Graph;
 
-#[cfg(feature = "from_instruction")]
 #[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
+#[cfg(feature = "from_instruction")]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 enum Instruction<T: Display + Clone> {
     AddNode(T),
     AddEdge(i32, T, T),
@@ -48,8 +52,9 @@ enum Instruction<T: Display + Clone> {
 }
 
 /// A list of instructions used to construct a graph.
-#[cfg(feature = "from_instruction")]
 #[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
+#[cfg(feature = "from_instruction")]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct Instructions<T: Display + Clone> {
     instructions: Vec<Instruction<T>>,
 }

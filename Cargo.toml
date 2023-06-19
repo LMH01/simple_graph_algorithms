@@ -7,8 +7,10 @@ edition = "2021"
 
 [features]
 from_instruction = []
+serde = ["dep:serde"]
 
 [dependencies]
+serde = { version = "1.0", optional = true, features = ["derive"] }
 
 [dev-dependencies]
 criterion = { version = "0.4", features = ["html_reports"] }

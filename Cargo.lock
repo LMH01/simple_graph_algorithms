@@ -450,6 +450,7 @@ name = "simple_graph_algorithms"
 version = "0.1.0"
 dependencies = [
  "criterion",
+ "serde",
 ]
 
 [[package]]

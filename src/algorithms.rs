@@ -17,6 +17,9 @@
 //! | Dijkstra | 52.3155 ms |
 use std::{fmt::Display, hash::Hash, collections::{BinaryHeap, HashSet}, rc::Rc, cell::RefCell};
 
+#[cfg(feature = "serde")]
+use serde::{Serialize, Deserialize};
+
 use crate::{Graph, Node, ShortestPathTree};
 
 /// Calculates the shortest distance between one source node and all other nodes on the graph using 
@@ -239,6 +242,7 @@ pub fn bellman_ford<T: Display + Eq + Clone + Hash>(graph: &mut Graph<T>, source
 
 /// Errors that can occur when algorithms are run.
 #[derive(Debug, PartialEq, PartialOrd, Ord, Eq, Clone, Copy, Hash)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub enum RunAlgorithmError {
     /// Indicates that the source node is not contained within the graph.
     SourceNodeMissing,
