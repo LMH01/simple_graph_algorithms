@@ -13,8 +13,8 @@
 //! 
 //! | Algorithm | Mean time per run |
 //! | - | - |
-//! | Bellman-Ford | 1.8786 s |
-//! | Dijkstra | 52.874 ms |
+//! | Bellman-Ford | 2.1883 s |
+//! | Dijkstra | 52.3155 ms |
 use std::{fmt::Display, hash::Hash, collections::{BinaryHeap, HashSet}, rc::Rc, cell::RefCell};
 
 use crate::{Graph, Node, ShortestPathTree};

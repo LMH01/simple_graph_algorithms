@@ -48,7 +48,6 @@
 //! | from_instruction | Enables functionality that allows graphs to be parsed from a list of instructions. |
 
 use std::{fmt::{Display, Debug}, rc::Rc, cell::RefCell, collections::HashMap, hash::Hash};
-// TODO Use Aquamarine crate to create mermaid diagrams to visualize the graphs on which the algorithms are run
 /// Contains implementations for the graph to work.
 mod graph;
 /// Contains all algorithms that are implemented in this crate.
