@@ -188,7 +188,7 @@ impl<T: Display + Clone + Eq + Hash> From<Instructions<T>> for Graph<T> {
 
 #[cfg(test)]
 mod tests {
-    use crate::{Graph, algorithms::bellman_ford};
+    use crate::{Graph, algorithms::{bellman_ford, dijkstra}};
 
     use super::Instructions;
 
@@ -214,6 +214,27 @@ mod tests {
         assert!(spt.is_ok());
         println!("{}", spt.as_ref().unwrap().shortest_path(&String::from("d")).unwrap());
         assert_eq!(spt.unwrap().shortest_distance(&String::from("d")), Some(5));    
+    }
+
+    #[test]
+    fn graph_from_instructions_string_test_2() {
+        let mut instructions = Vec::new();
+        instructions.push(String::from("node: a"));
+        instructions.push(String::from("node: b"));
+        instructions.push(String::from("node: c"));
+        instructions.push(String::from("node: d"));
+        instructions.push(String::from("edge: a 7 b"));
+        instructions.push(String::from("edge: a 4 c"));
+        instructions.push(String::from("edge: b 2 d"));
+        instructions.push(String::from("edge: c 9 d"));
+        instructions.push(String::from("edge: c 2 b"));
+        let instructions: Result<Instructions<String>, String> = Instructions::try_from(&instructions);
+        assert!(instructions.is_ok());
+        let mut graph = Graph::from(instructions.unwrap());
+        assert_eq!(graph.size(), 4);
+        assert_eq!(graph.contains_edge(&String::from("a"), &String::from("c")), true);
+        let spt = dijkstra(&mut graph, &String::from("a")).unwrap();
+        assert_eq!(spt.shortest_distance(&String::from("d")), Some(8));
     }
 
     #[test]
