@@ -119,7 +119,7 @@ impl<T: Display + Eq + Hash> Graph<T> {
 
 /// Structure to store the shortest path and distance from one node 
 /// to other nodes after a pathfinding algorithm has been run on a graph.
-#[derive(Debug, Eq, PartialEq)]
+#[derive(Eq, PartialEq, Debug)]
 pub struct ShortestPathTree<T: Display + Clone + Hash + Eq> {
     source: T,
     results: HashMap<T, Option<(i32, ShortestPath<T>)>>,
@@ -212,7 +212,7 @@ impl<T: Display + Clone + Eq + Hash> ShortestPathTree<T> {
 }
 
 /// The shortest path from one node to another.
-#[derive(Debug, Eq, PartialEq, Clone)]
+#[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
 pub struct ShortestPath<T: Display + Clone> {// Add documentation
     /// Contains a list of node ids, first entry is the start node, last entry is the target node.
     path: Vec<T>, //TODO maybe add later that the distance between each node is stored as well
@@ -374,7 +374,7 @@ impl<T: Display + Clone + Eq> TryFrom<&Rc<RefCell<Node<T>>>> for ShortestPath<T>
     }
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Clone, Eq, PartialEq, PartialOrd, Ord, Hash, Debug)]
 /// Errors that can occur when edges are added to the graph.
 /// 
 /// Variants specify what exact node is missing.
