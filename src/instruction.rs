@@ -40,6 +40,7 @@ use std::{fmt::Display, hash::Hash};
 use crate::Graph;
 
 #[cfg(feature = "from_instruction")]
+#[derive(Debug, PartialEq)]
 enum Instruction<T: Display + Clone> {
     AddNode(T),
     AddEdge(i32, T, T),
@@ -48,6 +49,7 @@ enum Instruction<T: Display + Clone> {
 
 /// A list of instructions used to construct a graph.
 #[cfg(feature = "from_instruction")]
+#[derive(Debug, PartialEq)]
 pub struct Instructions<T: Display + Clone> {
     instructions: Vec<Instruction<T>>,
 }
@@ -58,6 +60,9 @@ impl<T: Display + Clone + From<String>> TryFrom<&Vec<&str>> for Instructions<T> 
 
     /// Tries to parse each line of the string as an instruction and
     /// returns a list of instructions when the parsing was successful.
+    /// 
+    /// When an instruction could not be parsed,
+    /// the returning error contains the offending instruction.
     /// 
     /// # Example
     /// ```
@@ -87,7 +92,7 @@ impl<T: Display + Clone + From<String>> TryFrom<&Vec<&str>> for Instructions<T> 
     /// # Ok(())
     /// # }
     /// ```
-    fn try_from(value: &Vec<&str>) -> Result<Self, Self::Error> {//TODO add doc, example + test
+    fn try_from(value: &Vec<&str>) -> Result<Self, Self::Error> {
         let mut instructions = Vec::new();
 
         // Parse lines
@@ -104,6 +109,9 @@ impl<T: Display + Clone + From<String>> TryFrom<&Vec<String>> for Instructions<T
 
     /// Tries to parse each line of the string as an instruction and
     /// returns a list of instructions when the parsing was successful.
+    /// 
+    /// When an instruction could not be parsed,
+    /// the returning error contains the offending instruction.
     /// 
     /// # Example
     /// ```
@@ -133,7 +141,7 @@ impl<T: Display + Clone + From<String>> TryFrom<&Vec<String>> for Instructions<T
     /// # Ok(())
     /// # }
     /// ```
-    fn try_from(value: &Vec<String>) -> Result<Self, Self::Error> {//TODO add doc, example + test
+    fn try_from(value: &Vec<String>) -> Result<Self, Self::Error> {
         let mut instructions = Vec::new();
 
         // Parse lines
@@ -157,7 +165,7 @@ fn try_from_vec_string<T: Display + Clone + From<String>>(line: &str, instructio
                 Ok(weight) => {
                     instructions.push(Instruction::AddEdge(weight, T::from(split[1].to_string()), T::from(split[3].to_string())));
                 },
-                Err(_) => return Err(String::from(split[2])),
+                Err(_) => return Err(String::from(line)),
             };
         },
         "double_edge:" => {
@@ -165,15 +173,18 @@ fn try_from_vec_string<T: Display + Clone + From<String>>(line: &str, instructio
                 instructions.push(Instruction::AddDoubleEdge(weight, T::from(split[1].to_string()), T::from(split[3].to_string())));
             }
         },
-        _ => (),
+        "" => (),
+        _ => return Err(String::from(line)),
     }
     Ok(())
 }
 
 #[cfg(feature = "from_instruction")]
 impl<T: Display + Clone + Eq + Hash> From<Instructions<T>> for Graph<T> {
-    /// Constructs a graph from the list of instructions
-    fn from(value: Instructions<T>) -> Self {//TODO Add doc, example + test
+    /// Constructs a graph from a list of instructions.
+    /// 
+    /// See [here](instruction/index.html) for further information.
+    fn from(value: Instructions<T>) -> Self {
         let mut graph = Graph::new();
         for instruction in value.instructions {
             match instruction {
@@ -258,6 +269,24 @@ mod tests {
         assert!(spt.is_ok());
         println!("{}", spt.as_ref().unwrap().shortest_path(&String::from("d")).unwrap());
         assert_eq!(spt.unwrap().shortest_distance(&String::from("d")), Some(5));
+    }
+
+    #[test]
+    fn graph_from_instructions_err_test() {
+        let mut instructions = Vec::new();
+        instructions.push("nodea: a");
+        let instructions: Result<Instructions<String>, String> = Instructions::try_from(&instructions);
+        assert!(instructions.is_err());
+        assert_eq!(instructions, Err(String::from("nodea: a")))
+    }
+
+    #[test]
+    fn graph_from_instructions_err_test_2() {
+        let mut instructions = Vec::new();
+        instructions.push("edge: a x b");
+        let instructions: Result<Instructions<String>, String> = Instructions::try_from(&instructions);
+        assert!(instructions.is_err());
+        assert_eq!(instructions, Err(String::from("edge: a x b")))
     }
 
 }

@@ -51,7 +51,7 @@ use std::{fmt::{Display, Debug}, rc::Rc, cell::RefCell, collections::HashMap, ha
 // TODO update graph print to properly print negative edge weights
 // TODO Use Aquamarine crate to create mermaid diagrams to visualize the graphs on which the algorithms are run
 /// Contains implementations for the graph to work.
-pub mod graph;
+mod graph;
 /// Contains all algorithms that are implemented in this crate.
 pub mod algorithms;
 /// Graph parsing from a list of instructions.
