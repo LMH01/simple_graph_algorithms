@@ -9,6 +9,7 @@ repository = "https://github.com/LMH01/simple_graph_algorithms"
 keywords = ["graph", "pathfinding", "dijkstra", "bellman-ford", "easy-to-use"]
 categories = ["algorithms"]
 readme = "README.md"
+exclude = ["benches/", ".github"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
