@@ -92,7 +92,7 @@ mod tests {
         let spt = bellman_ford(&mut graph, &String::from("a"));
         assert!(spt.is_ok());
         println!("{}", spt.as_ref().unwrap().shortest_path(&String::from("d")).unwrap());
-        assert_eq!(spt.unwrap().shortest_distance(&String::from("d")), Some(5));        
+        assert_eq!(spt.unwrap().shortest_distance(&String::from("d")), Some(5));    
     }
 
 }

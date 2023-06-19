@@ -28,13 +28,14 @@ use crate::{Graph, Node, ShortestPathTree};
 /// This function takes a `graph` on which the algorithm should be run and the id of the start node.
 /// 
 /// Returns `Ok(ShortestPathTree)` when the algorithm was run on the graph or `Err(())` when the start node is missing from the graph.
-/// The [ShortestPathTree](../struct.ShortestPathTree.html) can then be used to retrieve the shortest distance and path to a node.
 /// 
-/// # Examples
+/// Once the algorithm was run successfully, the resulting [ShortestPathTree](../struct.ShortestPathTree.html) can be used to receive the shortest distance and path to a node.
+/// 
+/// # Example
 /// ```rust
-/// use simple_graph_algorithms::{Graph, ShortestPathTree, algorithms::dijkstra};
+/// use simple_graph_algorithms::{Graph, ShortestPathTree, algorithms::{dijkstra, AlgorithmError}};
 /// 
-/// # fn main() -> Result<(), ()> {
+/// # fn main() -> Result<(), AlgorithmError> {
 /// // Create new graph
 /// let mut graph: Graph<char> = Graph::new();
 /// 
@@ -59,15 +60,15 @@ use crate::{Graph, Node, ShortestPathTree};
 /// assert_eq!(spt.shortest_distance(&'d'), Some(8));
 /// 
 /// /// When run on a graph, that is missing the start node an Err is returned:
-/// assert_eq!(dijkstra(&mut graph, &'e'), Err(()));
+/// assert_eq!(dijkstra(&mut graph, &'e'), Err(AlgorithmError::SourceNodeMissing));
 /// # Ok(())
 /// # }
 /// ```
-pub fn dijkstra<T: Display + Clone + Eq + Hash>(graph: &mut Graph<T>, source_node_id: &T) -> Result<ShortestPathTree<T>, ()> {
+pub fn dijkstra<T: Display + Clone + Eq + Hash>(graph: &mut Graph<T>, source_node_id: &T) -> Result<ShortestPathTree<T>, AlgorithmError> {
     graph.reset_nodes();
     let source_node = match graph.nodes.get(source_node_id) {
         Some(node) => node,
-        None => return Err(()),
+        None => return Err(AlgorithmError::SourceNodeMissing),
     };
     source_node.borrow_mut().distance = 0;
     let mut open_nodes: BinaryHeap<Rc<RefCell<Node<T>>>> = BinaryHeap::new();
@@ -114,20 +115,20 @@ fn calc_min_distance<T: Display + Eq + Clone>(node: &Rc<RefCell<Node<T>>>, weigh
 /// [Bellman-Ford algorithm](https://en.wikipedia.org/wiki/Bellman%E2%80%93Ford_algorithm).
 /// 
 /// This algorithm works on graphs with negative edge weights but is slower than [Dijkstra's algorithm](fn.dijkstra.html).
-/// graph
+/// Note that the graph may contain negative edges **but may not** contain negative circles.
+/// 
 /// This function takes a `graph` on which the algorithm should be run and the id of the start node.
 /// 
-/// Returns `Ok(ShortestPathTree)` when the algorithm was run on the graph or `Err(())` when the start node is missing from the graph.
-/// The [ShortestPathTree](../struct.ShortestPathTree.html) can then be used to receive the shortest distance and path to a node.
+/// Returns `Ok(ShortestPathTree)` when the algorithm was successfully run on the graph, `Err(AlgorithmError::StartNodeMissing)` when the start node is missing from the graph
+/// or `Err(AlgorithmError::NegativeCircleDetected)` when the graph contains a negative circle.
 /// 
-/// Use [bellman_ford](fn.bellman_ford.html) instead if you wan't to calculate the distance between a start and a target node and
-/// get the distance as return value.
+/// Once the algorithm was run successfully, the resulting [ShortestPathTree](../struct.ShortestPathTree.html) can be used to receive the shortest distance and path to a node.
 /// 
 /// # Examples
 /// ```rust
-/// use simple_graph_algorithms::{Graph, ShortestPathTree, algorithms::bellman_ford};
+/// use simple_graph_algorithms::{Graph, ShortestPathTree, algorithms::{bellman_ford, AlgorithmError}};
 /// 
-/// # fn main() -> Result<(), ()> {
+/// # fn main() -> Result<(), AlgorithmError> {
 /// // Create new graph
 /// let mut graph: Graph<char> = Graph::new();
 /// 
@@ -144,24 +145,52 @@ fn calc_min_distance<T: Display + Eq + Clone>(node: &Rc<RefCell<Node<T>>>, weigh
 /// graph.add_edge(9, &'c', &'a');
 /// graph.add_edge(4, &'c', &'d');
 /// 
-/// /// Run Bellman-Ford algorithm to calculate the shortest path tree, starting at node a.
+/// // Run Bellman-Ford algorithm to calculate the shortest path tree, starting at node a.
 /// let spt = bellman_ford(&mut graph, &'a')?;
 /// 
 /// // Retrieve shortest distances
 /// assert_eq!(spt.shortest_distance(&'c'), Some(4));
 /// assert_eq!(spt.shortest_distance(&'d'), Some(8));
 /// 
-/// /// When run on a graph, that is missing the start node an Err is returned:
-/// assert_eq!(bellman_ford(&mut graph, &'e'), Err(()));
+/// // When run on a graph, that is missing the start node an Err is returned:
+/// assert_eq!(bellman_ford(&mut graph, &'e'), Err(AlgorithmError::SourceNodeMissing));
 /// # Ok(())
 /// # }
 /// ```
-pub fn bellman_ford<T: Display + Eq + Clone + Hash>(graph: &mut Graph<T>, source_node_id: &T) -> Result<ShortestPathTree<T>, ()> {
+/// ## Graph contains negative circle
+/// ```
+/// use simple_graph_algorithms::{Graph, ShortestPathTree, algorithms::{bellman_ford, AlgorithmError}};
+/// 
+/// # fn main() -> Result<(), AlgorithmError> {
+/// // Create new graph
+/// let mut graph: Graph<char> = Graph::new();
+/// 
+/// // Add nodes to graph
+/// graph.add_node('a');
+/// graph.add_node('b');
+/// graph.add_node('c');
+/// graph.add_node('d');
+/// 
+/// // Add edges between nodes
+/// graph.add_edge(-5, &'a', &'b');
+/// graph.add_edge(4, &'a', &'c');
+/// graph.add_edge(5, &'b', &'a');
+/// graph.add_edge(-9, &'c', &'a');
+/// graph.add_edge(4, &'c', &'d');
+/// 
+/// // Run Bellman-Ford algorithm to calculate the shortest path tree, starting at node a.
+/// // Errors because the graph contains a negative circle.
+/// let spt = bellman_ford(&mut graph, &'a');
+/// assert_eq!(spt, Err(AlgorithmError::NegativeCircleDetected));
+/// # Ok(())
+/// # }
+/// ```
+pub fn bellman_ford<T: Display + Eq + Clone + Hash>(graph: &mut Graph<T>, source_node_id: &T) -> Result<ShortestPathTree<T>, AlgorithmError> {
     graph.reset_nodes();
 
     let source_node = match graph.nodes.get(source_node_id) {
         Some(node) => node,
-        None => return Err(()),
+        None => return Err(AlgorithmError::SourceNodeMissing),
     };
     source_node.borrow_mut().distance = 0;
 
@@ -189,14 +218,37 @@ pub fn bellman_ford<T: Display + Eq + Clone + Hash>(graph: &mut Graph<T>, source
             }
         }
     }
-    //TODO Add in check that detects negative circles and return Err() when found, update docs accordingly and add in a test that checks that
+
+    // Check for negative cycles
+    for (_, node) in &graph.nodes {
+        let node_ref = node.borrow();
+
+        for edge in &node_ref.edges {
+            let target_node = Rc::clone(&edge.target);
+            let target_node_ref = target_node.borrow();
+
+            let new_distance = node_ref.distance + edge.weight;
+            if new_distance < target_node_ref.distance {
+                return Err(AlgorithmError::NegativeCircleDetected);
+            }
+        }
+    }
 
     Ok(ShortestPathTree::from_graph(&graph, &source_node_id))
 }
 
+/// Errors that can occur when algorithms are run.
+#[derive(Debug, PartialEq)]
+pub enum AlgorithmError {
+    /// Indicates that the source node is not contained within the graph.
+    SourceNodeMissing,
+    /// Indicates that the graph contains a negative circle, which causes the algorithm to not work properly.
+    NegativeCircleDetected,
+}
+
 #[cfg(test)]
 mod tests {
-    use crate::{Graph, algorithms::{dijkstra, bellman_ford}, graph_1, graph_2};
+    use crate::{Graph, algorithms::{dijkstra, bellman_ford, AlgorithmError}, graph_1, graph_2};
 
     #[test]
     fn dijkstra_test_1() {
@@ -267,6 +319,23 @@ mod tests {
         let spt = bellman_ford(&mut graph, &'d');
         assert!(spt.is_ok());
         assert_eq!(spt.unwrap().shortest_path(&'a').unwrap().to_string(), "d -> b -> c -> a");
+    }
+
+    #[test]
+    fn bellman_ford_negative_circle_error_test() {
+        let mut graph = graph_with_negative_edges();
+        graph.add_double_edge(-10, &'a', &'d');
+        let spt = bellman_ford(&mut graph, &'a');
+        assert_eq!(spt, Err(AlgorithmError::NegativeCircleDetected));
+    }
+
+    #[test]
+    fn bellman_ford_negative_circle_error_test_2() {
+        let mut graph = graph_1();
+        graph.add_double_edge(-10, &"Oslo", &"London");
+        graph.add_double_edge(-10, &"New York", &"London");
+        let spt = bellman_ford(&mut graph, &"Berlin");
+        assert_eq!(spt, Err(AlgorithmError::NegativeCircleDetected));
     }
 
 }
