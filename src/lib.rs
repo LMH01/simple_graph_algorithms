@@ -127,6 +127,7 @@ impl<T: Display + Clone + Eq + Hash> ShortestPathTree<T> {
     /// The `distance` is the minimal distance to this node and `shortest_path` is the path taken to get to this node.
     /// 
     /// If either `distance` or `shortest_path` is None, no path will be added.
+    #[allow(clippy::unnecessary_unwrap)]
     fn add_result(&mut self, node_id: T, distance: Option<i32>, shortest_path: Option<ShortestPath<T>>) {
         if shortest_path.is_none() | distance.is_none() {
             self.results.insert(node_id, None);
@@ -176,10 +177,7 @@ impl<T: Display + Clone + Eq + Hash> ShortestPathTree<T> {
     /// # }
     /// ```
     pub fn shortest_distance(&self, target_id: &T) -> Option<i32> {
-        match self.results.get(&target_id)? {
-            Some(res) => Some(res.0),
-            None => None,
-        }
+        self.results.get(target_id)?.as_ref().map(|res| res.0)
     }
 
     /// Creates a shortest path tree from a graph and the id of a source node. A pathfinding algorithm
@@ -237,7 +235,7 @@ impl<T: Display + Clone> ShortestPath<T> {
     /// # Ok(())}
     /// ```
     pub fn source(&self) -> Option<&T> {
-        self.path.first().clone()
+        self.path.first()
     }
 
     /// Id of target node where this shortest path ends.
@@ -262,7 +260,7 @@ impl<T: Display + Clone> ShortestPath<T> {
     /// # Ok(())}
     /// ```
     pub fn target(&self) -> Option<&T> {
-        self.path.last().clone()
+        self.path.last()
     }
 
     /// Id's of nodes that form the shortest path.

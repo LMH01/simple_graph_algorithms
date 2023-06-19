@@ -1,6 +1,6 @@
-use std::{fmt::{Display, Debug}, rc::Rc, cell::RefCell, hash::Hash, collections::HashMap};
+use std::{fmt::Display, rc::Rc, cell::RefCell, hash::Hash, collections::HashMap};
 
-use crate::{Node, Edge, Graph, AddEdgeError, ShortestPath};
+use crate::{Node, Edge, Graph, AddEdgeError};
 
 // Node implementations
 
@@ -71,7 +71,7 @@ impl<T: Display + Eq> PartialEq for Edge<T> {
 
 // Graph implementations
 
-impl<'a, T: Display + Clone + Eq + Hash> Graph<T> {
+impl<T: Display + Clone + Eq + Hash> Graph<T> {
     
     /// Creates a new and empty graph.
     pub fn new() -> Self {
@@ -184,10 +184,10 @@ impl<'a, T: Display + Clone + Eq + Hash> Graph<T> {
         if !self.nodes.contains_key(source_id) && !self.nodes.contains_key(target_id) {
             return false;
         }
-        let parent = Rc::clone(&self.nodes.get(source_id).unwrap());
-        let target = Rc::clone(&self.nodes.get(target_id).unwrap());
+        let parent = Rc::clone(self.nodes.get(source_id).unwrap());
+        let target = Rc::clone(self.nodes.get(target_id).unwrap());
         self.nodes.get(source_id).unwrap().borrow_mut().edges.push(Edge::new(weight, parent, target));
-        return true;
+        true
     }
 
     /// Tries to add a new edge to the graph that connects two nodes in a single direction from source to target.
@@ -226,8 +226,8 @@ impl<'a, T: Display + Clone + Eq + Hash> Graph<T> {
         } else if !self.nodes.contains_key(target_id) {
             return Err(AddEdgeError::TargetMissing);
         }
-        let parent = Rc::clone(&self.nodes.get(source_id).unwrap());
-        let target = Rc::clone(&self.nodes.get(target_id).unwrap());
+        let parent = Rc::clone(self.nodes.get(source_id).unwrap());
+        let target = Rc::clone(self.nodes.get(target_id).unwrap());
         self.nodes.get(source_id).unwrap().borrow_mut().edges.push(Edge::new(weight, parent, target));
         Ok(())
     }
@@ -257,8 +257,8 @@ impl<'a, T: Display + Clone + Eq + Hash> Graph<T> {
         if !self.nodes.contains_key(source_id) && !self.nodes.contains_key(target) {
             return false;
         }
-        let parent = Rc::clone(&self.nodes.get(source_id).unwrap());
-        let destination = Rc::clone(&self.nodes.get(target).unwrap());
+        let parent = Rc::clone(self.nodes.get(source_id).unwrap());
+        let destination = Rc::clone(self.nodes.get(target).unwrap());
         self.nodes.get(source_id).unwrap().borrow_mut().edges.push(Edge::new(weight, parent.clone(), destination.clone()));
         self.nodes.get(target).unwrap().borrow_mut().edges.push(Edge::new(weight, destination, parent));
         true
@@ -300,8 +300,8 @@ impl<'a, T: Display + Clone + Eq + Hash> Graph<T> {
         } else if !self.nodes.contains_key(target_id) {
             return Err(AddEdgeError::TargetMissing);
         }
-        let parent = Rc::clone(&self.nodes.get(source_id).unwrap());
-        let destination = Rc::clone(&self.nodes.get(target_id).unwrap());
+        let parent = Rc::clone(self.nodes.get(source_id).unwrap());
+        let destination = Rc::clone(self.nodes.get(target_id).unwrap());
         self.nodes.get(source_id).unwrap().borrow_mut().edges.push(Edge::new(weight, parent.clone(), destination.clone()));
         self.nodes.get(target_id).unwrap().borrow_mut().edges.push(Edge::new(weight, destination, parent));
         Ok(())
@@ -374,13 +374,19 @@ impl<'a, T: Display + Clone + Eq + Hash> Graph<T> {
 
 }
 
+impl<T: Display + Clone + Eq + Hash> Default for Graph<T> {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl<T: Display> Display for Graph<T> {
     /// Formats the graph to show all edges between nodes
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let mut graph = String::new();
         graph.push_str(&format!("{:13} | {:08} | edges\n", "id", "distance"));
         graph.push_str("--------------------------------------------------------------------\n");
-        for (_, node) in &self.nodes {
+        for node in self.nodes.values() {
             let id = &node.borrow().id;
             let distance = node.borrow().distance;
             if distance != i32::MAX {
@@ -389,11 +395,7 @@ impl<T: Display> Display for Graph<T> {
                 graph.push_str(&format!("{:13} | {:8} | ", id, ""));
             }
             for edge in &node.borrow().edges {
-                if edge.weight < 0 {
-                    graph.push_str(&format!("(--({})-> {})", edge.weight, edge.target.borrow().id));
-                } else {
-                    graph.push_str(&format!("(--({})-> {})", edge.weight, edge.target.borrow().id));
-                }
+                graph.push_str(&format!("(--({})-> {})", edge.weight, edge.target.borrow().id));
             }
             graph.push('\n');
         }
@@ -429,7 +431,7 @@ impl<T: Display + Clone + Eq + Hash + From<String>> From<&Vec<Vec<i32>>> for Gra
         let mut graph: Graph<T> = Graph::new();
         for (i_y, y) in value.iter().enumerate() {
             for (i_x, _x) in y.iter().enumerate() {
-graph.add_node(String::from(format!("[{}|{}]", i_x, i_y)).into());
+                graph.add_node(format!("[{}|{}]", i_x, i_y).into());
             }
         }
         for (i_y, y) in value.iter().enumerate() {

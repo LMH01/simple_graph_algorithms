@@ -98,7 +98,7 @@ pub fn dijkstra<T: Display + Clone + Eq + Hash>(graph: &mut Graph<T>, source_nod
         closed_node_ids.insert(node.borrow().clone().id);
     }
 
-    Ok(ShortestPathTree::from_graph(&graph, &source_node_id))
+    Ok(ShortestPathTree::from_graph(graph, source_node_id))
 }
 
 fn calc_min_distance<T: Display + Eq + Clone>(node: &Rc<RefCell<Node<T>>>, weight: i32, source: &Rc<RefCell<Node<T>>>) {
@@ -197,7 +197,7 @@ pub fn bellman_ford<T: Display + Eq + Clone + Hash>(graph: &mut Graph<T>, source
     let nodes_count = graph.size();
 
     for _ in 0..nodes_count - 1 {
-        for (_, node) in &graph.nodes {
+        for node in graph.nodes.values() {
             let node_ref = node.borrow();
 
             if node_ref.distance == std::i32::MAX {
@@ -212,7 +212,7 @@ pub fn bellman_ford<T: Display + Eq + Clone + Hash>(graph: &mut Graph<T>, source
                 if new_distance < target_node_ref.distance {
                     target_node_ref.distance = new_distance;
                     let mut shortest_path = node_ref.shortest_path.clone();
-                    shortest_path.push(Rc::clone(&node));
+                    shortest_path.push(Rc::clone(node));
                     target_node_ref.shortest_path = shortest_path;
                 }
             }
@@ -220,7 +220,7 @@ pub fn bellman_ford<T: Display + Eq + Clone + Hash>(graph: &mut Graph<T>, source
     }
 
     // Check for negative cycles
-    for (_, node) in &graph.nodes {
+    for node in graph.nodes.values() {
         let node_ref = node.borrow();
 
         for edge in &node_ref.edges {
@@ -234,7 +234,7 @@ pub fn bellman_ford<T: Display + Eq + Clone + Hash>(graph: &mut Graph<T>, source
         }
     }
 
-    Ok(ShortestPathTree::from_graph(&graph, &source_node_id))
+    Ok(ShortestPathTree::from_graph(graph, source_node_id))
 }
 
 /// Errors that can occur when algorithms are run.
