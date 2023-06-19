@@ -8,7 +8,7 @@
 //! 
 //! # Example
 //! ```
-//! use simple_graph_algorithms::{Graph, graph::instruction::Instructions};
+//! use simple_graph_algorithms::{Graph, instruction::Instructions};
 //! # fn main() -> Result<(), String> {
 //! 
 //! // Create a vector that contains instructions.
@@ -61,7 +61,7 @@ impl<T: Display + Clone + From<String>> TryFrom<&Vec<&str>> for Instructions<T> 
     /// 
     /// # Example
     /// ```
-    /// use simple_graph_algorithms::{Graph, graph::instruction::Instructions};
+    /// use simple_graph_algorithms::{Graph, instruction::Instructions};
     /// # fn main() -> Result<(), String> {
     /// 
     /// // Create a vector that contains instructions (this should normally be read from a file).
@@ -107,7 +107,7 @@ impl<T: Display + Clone + From<String>> TryFrom<&Vec<String>> for Instructions<T
     /// 
     /// # Example
     /// ```
-    /// use simple_graph_algorithms::{Graph, graph::instruction::Instructions};
+    /// use simple_graph_algorithms::{Graph, instruction::Instructions};
     /// # fn main() -> Result<(), String> {
     /// 
     /// // Create a vector that contains instructions (this should normally be read from a file).
@@ -236,7 +236,7 @@ mod tests {
         let spt = bellman_ford(&mut graph, &String::from("a"));
         assert!(spt.is_ok());
         println!("{}", spt.as_ref().unwrap().shortest_path(&String::from("d")).unwrap());
-        assert_eq!(spt.unwrap().shortest_distance(&String::from("d")), Some(5));    
+        assert_eq!(spt.unwrap().shortest_distance(&String::from("d")), Some(5));
     }
 
 }
