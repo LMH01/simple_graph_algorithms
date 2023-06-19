@@ -12,7 +12,7 @@
 //! # fn main() -> Result<(), String> {
 //! 
 //! // Create a vector that contains instructions.
-//! // The idea is that these instructions are read from a file).
+//! // The idea is that these instructions are read from a file.
 //! let mut instruction_strings = Vec::new();
 //! instruction_strings.push("node: a");
 //! instruction_strings.push("node: b");
