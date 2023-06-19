@@ -1,3 +1,7 @@
+[![Current Crates.io Version](https://img.shields.io/crates/v/simple_graph_algorithms.svg)](https://crates.io/crates/simple_graph_algorithms)
+[![Current documentation](https://img.shields.io/docsrs/simple_graph_algorithms/latest)](https://docs.rs/simple_graph_algorithms/)
+
+
 # simple_graph_algorithms
 
 This library aims to provide simple to use implementations for various algorithms run on graphs.
@@ -11,7 +15,11 @@ The following algorithms are currently implemented in this library:
 
 ## Documentation
 
-The documentation will be hosted on [docs.rs](https://docs.rs) once the first version has been released to [crates.io](https://crates.io).
+The documentation is hosted [here on docs.rs](https://docs.rs/simple_graph_algorithms/).
+
+## Changelog
+
+The changelog can be found [here](changelog.md)
 
 ## Performance
 
