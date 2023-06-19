@@ -8,9 +8,9 @@
 //!  
 //! # Minimal working example
 //! ```
-//! use simple_graph_algorithms::{Graph, algorithms::{dijkstra, AlgorithmError}};
+//! use simple_graph_algorithms::{Graph, algorithms::{dijkstra, RunAlgorithmError}};
 //! 
-//! fn main() -> Result<(), AlgorithmError> {
+//! fn main() -> Result<(), RunAlgorithmError> {
 //!     // Create empty graph
 //!     let mut graph = Graph::new();
 //! 
@@ -172,8 +172,8 @@ impl<T: Display + Clone + Eq + Hash> ShortestPathTree<T> {
     /// # Example
     /// ```
     /// use simple_graph_algorithms::{Graph, algorithms::dijkstra};
-    /// # use simple_graph_algorithms::algorithms::AlgorithmError;
-    /// # fn main() -> Result<(), AlgorithmError> {
+    /// # use simple_graph_algorithms::algorithms::RunAlgorithmError;
+    /// # fn main() -> Result<(), RunAlgorithmError> {
     /// 
     /// let mut graph = Graph::new();
     /// graph.add_node('a');
@@ -232,8 +232,8 @@ impl<T: Display + Clone> ShortestPath<T> {
     /// # Example
     /// ```
     /// use simple_graph_algorithms::{Graph, algorithms::dijkstra};
-    /// # use simple_graph_algorithms::algorithms::AlgorithmError;
-    /// # fn main() -> Result<(), AlgorithmError> {
+    /// # use simple_graph_algorithms::algorithms::RunAlgorithmError;
+    /// # fn main() -> Result<(), RunAlgorithmError> {
     /// 
     /// let mut graph = Graph::new();
     /// graph.add_node('a');
@@ -257,8 +257,8 @@ impl<T: Display + Clone> ShortestPath<T> {
     /// # Example
     /// ```
     /// use simple_graph_algorithms::{Graph, algorithms::dijkstra};
-    /// # use simple_graph_algorithms::algorithms::AlgorithmError;
-    /// # fn main() -> Result<(), AlgorithmError> {
+    /// # use simple_graph_algorithms::algorithms::RunAlgorithmError;
+    /// # fn main() -> Result<(), RunAlgorithmError> {
     /// 
     /// let mut graph = Graph::new();
     /// graph.add_node('a');
@@ -285,8 +285,8 @@ impl<T: Display + Clone> ShortestPath<T> {
     /// # Example
     /// ```
     /// use simple_graph_algorithms::{Graph, algorithms::dijkstra};
-    /// # use simple_graph_algorithms::algorithms::AlgorithmError;
-    /// # fn main() -> Result<(), AlgorithmError> {
+    /// # use simple_graph_algorithms::algorithms::RunAlgorithmError;
+    /// # fn main() -> Result<(), RunAlgorithmError> {
     /// 
     /// let mut graph = Graph::new();
     /// graph.add_node('a');
@@ -316,8 +316,8 @@ impl<T: Display + Clone + Debug> Display for ShortestPath<T> {
     /// # Example
     /// ```
     /// use simple_graph_algorithms::{Graph, algorithms::dijkstra};
-    /// # use simple_graph_algorithms::algorithms::AlgorithmError;
-    /// # fn main() -> Result<(), AlgorithmError> {
+    /// # use simple_graph_algorithms::algorithms::RunAlgorithmError;
+    /// # fn main() -> Result<(), RunAlgorithmError> {
     /// 
     /// let mut graph = Graph::new();
     /// graph.add_node('a');
