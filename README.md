@@ -1,5 +1,7 @@
 [![Current Crates.io Version](https://img.shields.io/crates/v/simple_graph_algorithms.svg)](https://crates.io/crates/simple_graph_algorithms)
 [![Current documentation](https://img.shields.io/docsrs/simple_graph_algorithms/latest)](https://docs.rs/simple_graph_algorithms/)
+[![Crates.io](https://img.shields.io/crates/d/simple_graph_algorithms)](https://crates.io/crates/simple_graph_algorithms)
+[![Crates.io](https://img.shields.io/crates/l/simple_graph_algorithms)](LICENSE)
 
 
 # simple_graph_algorithms
